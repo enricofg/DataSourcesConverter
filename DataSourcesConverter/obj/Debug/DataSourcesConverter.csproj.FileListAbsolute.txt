@@ -8,3 +8,13 @@ C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter
 C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.csproj.CoreCompileInputs.cache
 C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.exe
 C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.pdb
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\bin\Debug\DataSourcesConverter.exe.config
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\bin\Debug\DataSourcesConverter.exe
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\bin\Debug\DataSourcesConverter.pdb
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.csprojAssemblyReference.cache
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.FormDataSourcesConverter.resources
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.Properties.Resources.resources
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.csproj.GenerateResource.cache
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.csproj.CoreCompileInputs.cache
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.exe
+C:\proj\ProjetoIS\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.pdb
