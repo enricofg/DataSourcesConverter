@@ -63,6 +63,7 @@
             this.buttonRunFlow.TabIndex = 2;
             this.buttonRunFlow.Text = "Run Flow";
             this.buttonRunFlow.UseVisualStyleBackColor = false;
+            this.buttonRunFlow.Click += new System.EventHandler(this.buttonRunFlow_Click);
             // 
             // dataGridView1
             // 
@@ -81,6 +82,7 @@
             this.dataGridView1.Name = "dataGridView1";
             this.dataGridView1.Size = new System.Drawing.Size(564, 295);
             this.dataGridView1.TabIndex = 3;
+            this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             // 
             // Input
             // 
