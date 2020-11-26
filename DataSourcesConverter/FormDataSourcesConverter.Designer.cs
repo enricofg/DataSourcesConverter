@@ -28,14 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
             System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormDataSourcesConverter));
             this.label1 = new System.Windows.Forms.Label();
-            this.buttonConfigFlow = new System.Windows.Forms.Button();
-            this.button1 = new System.Windows.Forms.Button();
+            this.buttonRunFlow = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
             this.Input = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.Path = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.PathInput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Output = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.PathOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ButtonAddConfig = new System.Windows.Forms.DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).BeginInit();
             this.SuspendLayout();
             // 
@@ -50,29 +52,17 @@
             this.label1.TabIndex = 0;
             this.label1.Text = "Dashboard";
             // 
-            // buttonConfigFlow
+            // buttonRunFlow
             // 
-            this.buttonConfigFlow.BackColor = System.Drawing.SystemColors.MenuHighlight;
-            this.buttonConfigFlow.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.buttonConfigFlow.ForeColor = System.Drawing.SystemColors.MenuBar;
-            this.buttonConfigFlow.Location = new System.Drawing.Point(478, 23);
-            this.buttonConfigFlow.Name = "buttonConfigFlow";
-            this.buttonConfigFlow.Size = new System.Drawing.Size(112, 32);
-            this.buttonConfigFlow.TabIndex = 1;
-            this.buttonConfigFlow.Text = "Add/Config Flow";
-            this.buttonConfigFlow.UseVisualStyleBackColor = false;
-            // 
-            // button1
-            // 
-            this.button1.BackColor = System.Drawing.Color.ForestGreen;
-            this.button1.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
-            this.button1.ForeColor = System.Drawing.Color.FloralWhite;
-            this.button1.Location = new System.Drawing.Point(478, 373);
-            this.button1.Name = "button1";
-            this.button1.Size = new System.Drawing.Size(112, 32);
-            this.button1.TabIndex = 2;
-            this.button1.Text = "Run Flow";
-            this.button1.UseVisualStyleBackColor = false;
+            this.buttonRunFlow.BackColor = System.Drawing.Color.ForestGreen;
+            this.buttonRunFlow.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
+            this.buttonRunFlow.ForeColor = System.Drawing.Color.FloralWhite;
+            this.buttonRunFlow.Location = new System.Drawing.Point(478, 373);
+            this.buttonRunFlow.Name = "buttonRunFlow";
+            this.buttonRunFlow.Size = new System.Drawing.Size(112, 32);
+            this.buttonRunFlow.TabIndex = 2;
+            this.buttonRunFlow.Text = "Run Flow";
+            this.buttonRunFlow.UseVisualStyleBackColor = false;
             // 
             // dataGridView1
             // 
@@ -82,8 +72,10 @@
             this.dataGridView1.ColumnHeadersHeightSizeMode = System.Windows.Forms.DataGridViewColumnHeadersHeightSizeMode.AutoSize;
             this.dataGridView1.Columns.AddRange(new System.Windows.Forms.DataGridViewColumn[] {
             this.Input,
-            this.Path,
-            this.Output});
+            this.PathInput,
+            this.Output,
+            this.PathOutput,
+            this.ButtonAddConfig});
             this.dataGridView1.GridColor = System.Drawing.SystemColors.ButtonShadow;
             this.dataGridView1.Location = new System.Drawing.Point(26, 63);
             this.dataGridView1.Name = "dataGridView1";
@@ -93,17 +85,39 @@
             // Input
             // 
             this.Input.HeaderText = "Input";
+            this.Input.Items.AddRange(new object[] {
+            "Excel File",
+            "XML File",
+            "RESTful API",
+            "Broker"});
             this.Input.Name = "Input";
             // 
-            // Path
+            // PathInput
             // 
-            this.Path.HeaderText = "Path";
-            this.Path.Name = "Path";
+            this.PathInput.HeaderText = "Input Path";
+            this.PathInput.Name = "PathInput";
             // 
             // Output
             // 
             this.Output.HeaderText = "Output";
+            this.Output.Items.AddRange(new object[] {
+            "HTML page",
+            "RESTful API"});
             this.Output.Name = "Output";
+            // 
+            // PathOutput
+            // 
+            this.PathOutput.HeaderText = "Output Path";
+            this.PathOutput.Name = "PathOutput";
+            // 
+            // ButtonAddConfig
+            // 
+            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle1.NullValue = "Remove";
+            this.ButtonAddConfig.DefaultCellStyle = dataGridViewCellStyle1;
+            this.ButtonAddConfig.HeaderText = "Config";
+            this.ButtonAddConfig.Name = "ButtonAddConfig";
+            this.ButtonAddConfig.Text = "Add";
             // 
             // FormDataSourcesConverter
             // 
@@ -112,8 +126,7 @@
             this.BackColor = System.Drawing.Color.WhiteSmoke;
             this.ClientSize = new System.Drawing.Size(619, 428);
             this.Controls.Add(this.dataGridView1);
-            this.Controls.Add(this.button1);
-            this.Controls.Add(this.buttonConfigFlow);
+            this.Controls.Add(this.buttonRunFlow);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
             this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
@@ -128,12 +141,13 @@
         #endregion
 
         private System.Windows.Forms.Label label1;
-        private System.Windows.Forms.Button buttonConfigFlow;
-        private System.Windows.Forms.Button button1;
+        private System.Windows.Forms.Button buttonRunFlow;
         private System.Windows.Forms.DataGridView dataGridView1;
         private System.Windows.Forms.DataGridViewComboBoxColumn Input;
-        private System.Windows.Forms.DataGridViewTextBoxColumn Path;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PathInput;
         private System.Windows.Forms.DataGridViewComboBoxColumn Output;
+        private System.Windows.Forms.DataGridViewTextBoxColumn PathOutput;
+        private System.Windows.Forms.DataGridViewButtonColumn ButtonAddConfig;
     }
 }
 

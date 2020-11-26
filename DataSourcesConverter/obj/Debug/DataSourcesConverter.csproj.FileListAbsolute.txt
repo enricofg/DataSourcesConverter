@@ -1,0 +1,10 @@
+C:\proj\DataSourcesConverter\DataSourcesConverter\bin\Debug\DataSourcesConverter.exe.config
+C:\proj\DataSourcesConverter\DataSourcesConverter\bin\Debug\DataSourcesConverter.exe
+C:\proj\DataSourcesConverter\DataSourcesConverter\bin\Debug\DataSourcesConverter.pdb
+C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.csprojAssemblyReference.cache
+C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.FormDataSourcesConverter.resources
+C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.Properties.Resources.resources
+C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.csproj.GenerateResource.cache
+C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.csproj.CoreCompileInputs.cache
+C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.exe
+C:\proj\DataSourcesConverter\DataSourcesConverter\obj\Debug\DataSourcesConverter.pdb
