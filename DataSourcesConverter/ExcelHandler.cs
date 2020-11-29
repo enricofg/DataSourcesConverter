@@ -16,7 +16,7 @@ namespace Excel_Lib
 
             //open excel file
             var excelWorkbook = excelApplication.Workbooks.Open(filename);
-            excelApplication.Visible = true;
+            //excelApplication.Visible = true;
             var excelWorksheet = (Excel.Worksheet)excelWorkbook.ActiveSheet;
 
             string content = excelWorksheet.Cells[1, 1].Value;

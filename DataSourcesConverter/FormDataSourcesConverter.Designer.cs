@@ -116,7 +116,7 @@
             // 
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
             this.PathOutput.DefaultCellStyle = dataGridViewCellStyle2;
-            this.PathOutput.HeaderText = "Output Path";
+            this.PathOutput.HeaderText = "Output: Path+Filename";
             this.PathOutput.Name = "PathOutput";
             // 
             // ButtonAddConfig
