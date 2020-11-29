@@ -12,6 +12,8 @@ namespace DataSourcesConverter
 {
     public partial class FormDataSourcesConverter : Form
     {
+        private string[] validInputs = { "Excel File", "XML File", "RESTful API", "Broker" };
+        private string[] validOutputs = { "HTML Page", "RESTful API" };        
 
         public FormDataSourcesConverter()
         {
@@ -41,20 +43,56 @@ namespace DataSourcesConverter
             {
                 if (row.IsNewRow == false)
                 {
+                    string inputOption = row.Cells["Input"].Value.ToString();
+                    string inputPath = row.Cells["PathInput"].Value.ToString();
+                    string outputOption = row.Cells["Output"].Value.ToString();
+                    string outputPath = row.Cells["PathOutput"].Value.ToString();
+
                     MessageBox.Show(
-                        "Row #"+(row.Index+1)+":\n" +
-                        "Chosen input is: " + row.Cells["Input"].Value.ToString()+"\n"+
-                        "Chosen input path is: " + row.Cells["PathInput"].Value.ToString() + "\n" +
-                        "Chosen output is: " + row.Cells["Output"].Value.ToString() + "\n" +
-                        "Chosen output path is: " + row.Cells["PathOutput"].Value.ToString() + "\n" 
+                        "Row #" + (row.Index + 1) + ":\n" +
+                        "Chosen input is: " + inputOption + "\n" +
+                        "Chosen input path is: " + inputPath + "\n" +
+                        "Chosen output is: " + outputOption + "\n" +
+                        "Chosen output path is: " + outputPath + "\n"
                         );
-                }                
+
+                    runFlowRowItemOptions(inputOption, inputPath, outputOption, outputPath);
+                }
+            }
+        }
+
+        private static void runFlowRowItemOptions(string inputOption, string inputPath, string outputOption, string outputPath)
+        {
+            if (inputOption == "Excel File")
+            {
+                try
+                {
+                    string readExcel = Excel_Lib.ExcelHandler.ReadFromExcelFile(inputPath);
+                    if (outputOption == "HTML Page")
+                    {
+                        MessageBox.Show("The define output path is " + outputPath + " and the read excel message is: " + readExcel);
+
+                    }
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("File at path \"" + inputPath + "\" not found!");
+                }
             }
         }
 
         private void dataGridView1_RowValidating(object sender, DataGridViewCellCancelEventArgs e)
-        {
+        {            
             DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+
+            /* disable clicking of the remove button from other cells 
+            foreach (DataGridViewRow item in dataGridView1.Rows)
+            {
+                if(!item.IsNewRow)
+                {
+                    item.DefaultCellStyle.BackColor = Color.LightGray; 
+                }
+            }*/
 
             DataGridViewCell inputCell = row.Cells["Input"];
             DataGridViewCell inputPathCell = row.Cells["PathInput"];
@@ -64,8 +102,8 @@ namespace DataSourcesConverter
         }
 
         private Boolean validateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
-        {
-            if (inputCell.Value != null && inputPathCell.Value != null && outputCell.Value != null && outputPathCell.Value != null)
+        {           
+            if (validInputs.Contains(inputCell.Value) && validOutputs.Contains(outputCell.Value) && inputPathCell.Value != null && outputPathCell.Value != null)
             {
                 return false;
             }
@@ -76,6 +114,12 @@ namespace DataSourcesConverter
         private void dataGridView1_RowValidated(object sender, DataGridViewCellEventArgs e)
         {
             //MessageBox.Show("Data source configuration added!");
+            /*DataGridViewRow row = dataGridView1.Rows[e.RowIndex];
+            row.Cells["ButtonAddConfig"].Value="Remove";*/
+            /*foreach (DataGridViewRow item in dataGridView1.Rows)
+            {
+                item.DefaultCellStyle.BackColor = Color.White;                
+            }*/
         }
     }
 }

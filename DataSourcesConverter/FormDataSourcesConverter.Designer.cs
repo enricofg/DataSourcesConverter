@@ -29,7 +29,8 @@
         private void InitializeComponent()
         {
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.ComponentModel.ComponentResourceManager resources = new System.ComponentModel.ComponentResourceManager(typeof(FormDataSourcesConverter));
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.label1 = new System.Windows.Forms.Label();
             this.buttonRunFlow = new System.Windows.Forms.Button();
             this.dataGridView1 = new System.Windows.Forms.DataGridView();
@@ -54,10 +55,10 @@
             // 
             // buttonRunFlow
             // 
-            this.buttonRunFlow.BackColor = System.Drawing.Color.ForestGreen;
+            this.buttonRunFlow.BackColor = System.Drawing.Color.RoyalBlue;
             this.buttonRunFlow.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.buttonRunFlow.ForeColor = System.Drawing.Color.FloralWhite;
-            this.buttonRunFlow.Location = new System.Drawing.Point(478, 373);
+            this.buttonRunFlow.Location = new System.Drawing.Point(589, 373);
             this.buttonRunFlow.Name = "buttonRunFlow";
             this.buttonRunFlow.Size = new System.Drawing.Size(112, 32);
             this.buttonRunFlow.TabIndex = 2;
@@ -80,13 +81,14 @@
             this.dataGridView1.GridColor = System.Drawing.SystemColors.ButtonShadow;
             this.dataGridView1.Location = new System.Drawing.Point(26, 63);
             this.dataGridView1.Name = "dataGridView1";
-            this.dataGridView1.Size = new System.Drawing.Size(564, 295);
+            this.dataGridView1.Size = new System.Drawing.Size(675, 295);
             this.dataGridView1.TabIndex = 3;
             this.dataGridView1.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
             this.dataGridView1.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dataGridView1_RowValidating);
             // 
             // Input
             // 
+            this.Input.FlatStyle = System.Windows.Forms.FlatStyle.System;
             this.Input.HeaderText = "Input";
             this.Input.Items.AddRange(new object[] {
             "Excel File",
@@ -97,42 +99,45 @@
             // 
             // PathInput
             // 
-            this.PathInput.HeaderText = "Input Path";
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
+            this.PathInput.DefaultCellStyle = dataGridViewCellStyle1;
+            this.PathInput.HeaderText = "File Path / URL / IP";
             this.PathInput.Name = "PathInput";
             // 
             // Output
             // 
             this.Output.HeaderText = "Output";
             this.Output.Items.AddRange(new object[] {
-            "HTML page",
+            "HTML Page",
             "RESTful API"});
             this.Output.Name = "Output";
             // 
             // PathOutput
             // 
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
+            this.PathOutput.DefaultCellStyle = dataGridViewCellStyle2;
             this.PathOutput.HeaderText = "Output Path";
             this.PathOutput.Name = "PathOutput";
             // 
             // ButtonAddConfig
             // 
-            dataGridViewCellStyle1.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle1.NullValue = "Remove";
-            this.ButtonAddConfig.DefaultCellStyle = dataGridViewCellStyle1;
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.NullValue = "Remove";
+            this.ButtonAddConfig.DefaultCellStyle = dataGridViewCellStyle3;
             this.ButtonAddConfig.HeaderText = "Config";
             this.ButtonAddConfig.Name = "ButtonAddConfig";
-            this.ButtonAddConfig.Text = "Add";
+            this.ButtonAddConfig.Text = "";
             // 
             // FormDataSourcesConverter
             // 
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(619, 428);
+            this.ClientSize = new System.Drawing.Size(725, 428);
             this.Controls.Add(this.dataGridView1);
             this.Controls.Add(this.buttonRunFlow);
             this.Controls.Add(this.label1);
             this.FormBorderStyle = System.Windows.Forms.FormBorderStyle.FixedSingle;
-            this.Icon = ((System.Drawing.Icon)(resources.GetObject("$this.Icon")));
             this.Name = "FormDataSourcesConverter";
             this.Text = "Data Sources Converter";
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView1)).EndInit();
