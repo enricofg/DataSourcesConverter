@@ -19,7 +19,7 @@ namespace DataSourcesConverter
         private const string C_BROKER = "Broker";
         private const string C_HTML_PAGE = "HTML Page";
         private string[] validInputs = { C_EXCEL_FILE, C_XML_FILE, C_RESTFUL_API, C_BROKER };
-        private string[] validOutputs = { C_HTML_PAGE, C_RESTFUL_API };        
+        private string[] validOutputs = { C_HTML_PAGE, C_RESTFUL_API };
 
         public FormDataSourcesConverter()
         {
@@ -62,12 +62,12 @@ namespace DataSourcesConverter
                         "Chosen output path is: " + outputPath + "\n"
                         );
 
-                    runFlowRowItemOptions(inputOption, inputPath, outputOption, outputPath);
+                    RunFlowRowItemOptions(inputOption, inputPath, outputOption, outputPath);
                 }
             }
         }
 
-        private static void runFlowRowItemOptions(string inputOption, string inputPath, string outputOption, string outputPath)
+        private static void RunFlowRowItemOptions(string inputOption, string inputPath, string outputOption, string outputPath)
         {
             if (inputOption == C_EXCEL_FILE)
             {
@@ -76,7 +76,26 @@ namespace DataSourcesConverter
                     string readExcel = Excel_Lib.ExcelHandler.ReadFromExcelFile(inputPath);
 
                     MessageBox.Show("The define output path is " + outputPath + " and the read excel message is:\n" + readExcel);
-                    writeOutput(outputOption, outputPath, readExcel);                    
+                    WriteOutput(outputOption, outputPath, readExcel);                    
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("File at path \"" + inputPath + "\" not found!");
+                }
+            } else if(inputOption == C_XML_FILE)
+            {
+                try
+                {
+                    XMLHandler XMLHandler = new XMLHandler(inputPath);
+                    List<string> infoXML = XMLHandler.GetXMLInfo();
+                    string outputXML = "";
+
+                    foreach(string item in infoXML)
+                    {
+                        outputXML += item;
+                    }
+
+                    WriteOutput(outputOption, outputPath, outputXML);
                 }
                 catch (Exception)
                 {
@@ -85,7 +104,7 @@ namespace DataSourcesConverter
             }
         }
 
-        private static void writeOutput(string outputOption, string outputPath, string readInfo)
+        private static void WriteOutput(string outputOption, string outputPath, string readInfo)
         {
             try
             {
@@ -99,7 +118,6 @@ namespace DataSourcesConverter
                     MessageBox.Show("HTML File "+ outputPath + ".html created!");
                     sw.Close();
                 }
-
             }
             catch (Exception e)
             {
@@ -128,10 +146,10 @@ namespace DataSourcesConverter
             DataGridViewCell inputPathCell = row.Cells["PathInput"];
             DataGridViewCell outputCell = row.Cells["Output"];
             DataGridViewCell outputPathCell = row.Cells["PathOutput"];
-            e.Cancel = validateCells(inputCell, inputPathCell, outputCell, outputPathCell);
+            e.Cancel = ValidateCells(inputCell, inputPathCell, outputCell, outputPathCell);
         }
 
-        private Boolean validateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
+        private Boolean ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
         {           
             if (validInputs.Contains(inputCell.Value) && validOutputs.Contains(outputCell.Value) && inputPathCell.Value != null && outputPathCell.Value != null)
             {
