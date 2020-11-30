@@ -74,6 +74,7 @@ namespace DataSourcesConverter
             DataGridViewCell inputPathCell = row.Cells["PathInput"];
             DataGridViewCell outputCell = row.Cells["Output"];
             DataGridViewCell outputPathCell = row.Cells["PathOutput"];
+            
             e.Cancel = ValidateCells(inputCell, inputPathCell, outputCell, outputPathCell);
         }
 
@@ -142,22 +143,17 @@ namespace DataSourcesConverter
         }
         private void buttonClear_Click(object sender, EventArgs e)
         {
-            try
+            if(dataGridView.DataSource != null)
             {
                 dataGridView.DataSource = null;
                 dataGridView.Rows.Clear();
-                dataGridView.Refresh();    
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Error clearing flow!");
+                dataGridView.Refresh();
             }
         }
 
         private void buttonLoadFlow_Click(object sender, EventArgs e)
         {
-            DataGridView dg = dataGridView;
-            dg.Rows.Clear();
+            DataGridView dg = dataGridView; 
             string file = "";
 
             openFileDialog1.InitialDirectory = Application.StartupPath;
@@ -168,9 +164,15 @@ namespace DataSourcesConverter
             {
                 file = openFileDialog1.FileName;
             }
+            else
+            {
+                return;
+            }
             
             try
             {
+                dg.Rows.Clear();
+
                 using (BinaryReader bw = new BinaryReader(File.Open(file, FileMode.Open)))
                 {
                     int n = bw.ReadInt32();
@@ -242,6 +244,24 @@ namespace DataSourcesConverter
                 {
                     MessageBox.Show("File at path \"" + inputPath + "\" not found!");
                 }
+            } else if (inputOption == C_RESTFUL_API)
+            {
+                try
+                {
+                    var client = new RestSharp.RestClient(inputPath);
+                    var request = new RestSharp.RestRequest(inputPath, RestSharp.Method.GET);
+
+                    var response = client.Execute(request).Content;
+                    MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Error requesting: "+inputPath);
+                }               
+
+            } else
+            {
+                //MQTT broker
             }
         }
 
@@ -258,6 +278,10 @@ namespace DataSourcesConverter
                     //Close the file
                     MessageBox.Show("HTML File " + outputPath + ".html created!");
                     sw.Close();
+                }
+                else
+                {
+                    //output em REST
                 }
             }
             catch (Exception e)
