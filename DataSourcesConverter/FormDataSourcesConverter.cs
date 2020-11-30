@@ -20,7 +20,6 @@ namespace DataSourcesConverter
         private const string C_HTML_PAGE = "HTML Page";
         private string[] validInputs = { C_EXCEL_FILE, C_XML_FILE, C_RESTFUL_API, C_BROKER };
         private string[] validOutputs = { C_HTML_PAGE, C_RESTFUL_API };
-        private string[] validRESTTypes = { "GET", "POST", "PUT", "DELETE" };
 
         public FormDataSourcesConverter()
         {
@@ -42,35 +41,6 @@ namespace DataSourcesConverter
             }
         }
 
-
-        private void dataGridView_CellValueChanged(object sender, DataGridViewCellEventArgs e)
-        {
-            var senderGrid = (DataGridView)sender;
-            DataGridView dg = dataGridView;
-
-            if(senderGrid.Rows.Count > 0)
-            {
-                if (senderGrid.Columns[e.ColumnIndex] is DataGridViewComboBoxColumn &&
-                e.ColumnIndex == 0)
-                {
-                    DataGridViewCell dgRestTypeCell = dg.Rows[e.RowIndex].Cells["RESTtype"];
-                    DataGridViewCell dgRestResourcePathCell = dg.Rows[e.RowIndex].Cells["ResourcePath"];
-
-                    if (dg.Rows[e.RowIndex].Cells["Input"].Value.ToString() == C_RESTFUL_API)
-                    {
-                        ChangeCellStyle(dgRestTypeCell, false, Color.White, Color.Black); //enable
-                        ChangeCellStyle(dgRestResourcePathCell, false, Color.White, Color.Black); //enable
-                    }
-                    else
-                    {
-                        dgRestTypeCell.Value = null; //disable selectedIndex value
-                        ChangeCellStyle(dgRestTypeCell, true, Color.FromKnownColor(KnownColor.ControlLight), Color.FromKnownColor(KnownColor.ControlLight)); //disable
-                        ChangeCellStyle(dgRestResourcePathCell, true, Color.FromKnownColor(KnownColor.ControlLight), Color.FromKnownColor(KnownColor.ControlLight)); //disable
-                    }
-                }
-            }            
-        }
-
         private void buttonRunFlow_Click(object sender, EventArgs e)
         {
             DataGridView dg = dataGridView;
@@ -80,17 +50,9 @@ namespace DataSourcesConverter
                 if (row.IsNewRow == false && row.Cells[0].Value != null)
                 {
                     string inputOption = row.Cells["Input"].Value.ToString();
-                    string restType = "";
                     string inputPath = row.Cells["PathInput"].Value.ToString();
-                    string resourcePath = "";
                     string outputOption = row.Cells["Output"].Value.ToString();
                     string outputPath = row.Cells["PathOutput"].Value.ToString();
-
-                    if(row.Cells["Input"].Value.ToString() == C_RESTFUL_API)
-                    {
-                        restType = row.Cells["RESTtype"].Value.ToString();
-                        resourcePath = row.Cells["ResourcePath"].Value.ToString();
-                    }
 
                     MessageBox.Show(
                         "Row #" + (row.Index + 1) + ":\n" +
@@ -100,7 +62,7 @@ namespace DataSourcesConverter
                         "Chosen output path is: " + outputPath + "\n"
                         );
 
-                    RunFlowRowItemOptions(inputOption, restType, inputPath, resourcePath, outputOption, outputPath);
+                    RunFlowRowItemOptions(inputOption, inputPath, outputOption, outputPath);
                 }
             }
         }
@@ -109,13 +71,11 @@ namespace DataSourcesConverter
         {            
             DataGridViewRow row = dataGridView.Rows[e.RowIndex];
             DataGridViewCell inputCell = row.Cells["Input"];
-            DataGridViewCell restTypeCell = row.Cells["RESTtype"];
             DataGridViewCell inputPathCell = row.Cells["PathInput"];
-            DataGridViewCell resourcePathCell = row.Cells["ResourcePath"];
             DataGridViewCell outputCell = row.Cells["Output"];
             DataGridViewCell outputPathCell = row.Cells["PathOutput"];
             
-            e.Cancel = ValidateCells(inputCell, restTypeCell, inputPathCell, resourcePathCell, outputCell, outputPathCell);
+            e.Cancel = ValidateCells(inputCell, inputPathCell, outputCell, outputPathCell);
         }
 
         private void buttonAddRow_Click(object sender, EventArgs e)
@@ -240,31 +200,17 @@ namespace DataSourcesConverter
         }
         #endregion
 
-        private Boolean ValidateCells(DataGridViewCell inputCell, DataGridViewCell restTypeCell, DataGridViewCell inputPathCell, 
-                                      DataGridViewCell resourcePathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
+        private Boolean ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
         {
             if (validInputs.Contains(inputCell.Value) && validOutputs.Contains(outputCell.Value) && inputPathCell.Value != null && outputPathCell.Value != null)
             {
-                if (inputCell.Value.ToString() == C_RESTFUL_API && (!validRESTTypes.Contains(restTypeCell.Value) || resourcePathCell.Value == null))                  
-                {
-                    return true;
-                }
-
                 return false;
             }
 
             return true;
         }
 
-        //"Disable" a cell, source: https://stackoverflow.com/questions/629107/enabling-and-disabling-a-cell-in-a-datagridview/5291514
-        private static void ChangeCellStyle(DataGridViewCell dataGridViewCell, Boolean option, Color backColor, Color foreColor)
-        {
-            dataGridViewCell.ReadOnly = option;
-            dataGridViewCell.Style.BackColor = backColor;
-            dataGridViewCell.Style.ForeColor = foreColor;
-        }
-
-        private static void RunFlowRowItemOptions(string inputOption, string restType, string inputPath, string resourcePath, string outputOption, string outputPath)
+        private static void RunFlowRowItemOptions(string inputOption, string inputPath, string outputOption, string outputPath)
         {
             if (inputOption == C_EXCEL_FILE)
             {
@@ -303,14 +249,14 @@ namespace DataSourcesConverter
                 try
                 {
                     var client = new RestSharp.RestClient(inputPath);
-                    var request = new RestSharp.RestRequest(resourcePath, RestSharp.Method.GET);
+                    var request = new RestSharp.RestRequest(inputPath, RestSharp.Method.GET);
 
                     var response = client.Execute(request).Content;
                     MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Error requesting: "+inputPath+" at "+resourcePath);
+                    MessageBox.Show("Error requesting: "+inputPath);
                 }               
 
             } else

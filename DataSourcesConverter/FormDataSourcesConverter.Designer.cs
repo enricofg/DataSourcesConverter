@@ -32,7 +32,6 @@
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle4 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle5 = new System.Windows.Forms.DataGridViewCellStyle();
             this.buttonRunFlow = new System.Windows.Forms.Button();
             this.dataGridView = new System.Windows.Forms.DataGridView();
             this.buttonSaveFlow = new System.Windows.Forms.Button();
@@ -45,7 +44,6 @@
             this.Input = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.RESTtype = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.PathInput = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ResourcePath = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.Output = new System.Windows.Forms.DataGridViewComboBoxColumn();
             this.PathOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
             this.ButtonAddConfig = new System.Windows.Forms.DataGridViewButtonColumn();
@@ -57,7 +55,7 @@
             this.buttonRunFlow.BackColor = System.Drawing.Color.RoyalBlue;
             this.buttonRunFlow.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.buttonRunFlow.ForeColor = System.Drawing.Color.FloralWhite;
-            this.buttonRunFlow.Location = new System.Drawing.Point(663, 373);
+            this.buttonRunFlow.Location = new System.Drawing.Point(609, 373);
             this.buttonRunFlow.Name = "buttonRunFlow";
             this.buttonRunFlow.Size = new System.Drawing.Size(141, 32);
             this.buttonRunFlow.TabIndex = 2;
@@ -76,17 +74,15 @@
             this.Input,
             this.RESTtype,
             this.PathInput,
-            this.ResourcePath,
             this.Output,
             this.PathOutput,
             this.ButtonAddConfig});
             this.dataGridView.GridColor = System.Drawing.SystemColors.ButtonShadow;
             this.dataGridView.Location = new System.Drawing.Point(26, 63);
             this.dataGridView.Name = "dataGridView";
-            this.dataGridView.Size = new System.Drawing.Size(778, 295);
+            this.dataGridView.Size = new System.Drawing.Size(724, 295);
             this.dataGridView.TabIndex = 3;
             this.dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
-            this.dataGridView.CellValueChanged += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellValueChanged);
             this.dataGridView.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dataGridView1_RowValidating);
             // 
             // buttonSaveFlow
@@ -134,7 +130,7 @@
             this.buttonAddRow.FlatStyle = System.Windows.Forms.FlatStyle.Popup;
             this.buttonAddRow.Font = new System.Drawing.Font("Microsoft Sans Serif", 11.25F, System.Drawing.FontStyle.Regular, System.Drawing.GraphicsUnit.Point, ((byte)(0)));
             this.buttonAddRow.ForeColor = System.Drawing.Color.FloralWhite;
-            this.buttonAddRow.Location = new System.Drawing.Point(779, 32);
+            this.buttonAddRow.Location = new System.Drawing.Point(725, 32);
             this.buttonAddRow.Name = "buttonAddRow";
             this.buttonAddRow.Size = new System.Drawing.Size(25, 25);
             this.buttonAddRow.TabIndex = 7;
@@ -191,18 +187,8 @@
             // 
             dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
             this.PathInput.DefaultCellStyle = dataGridViewCellStyle2;
-            this.PathInput.HeaderText = "File Path / Base URL / IP";
+            this.PathInput.HeaderText = "File Path / URL / IP";
             this.PathInput.Name = "PathInput";
-            // 
-            // ResourcePath
-            // 
-            dataGridViewCellStyle3.BackColor = System.Drawing.SystemColors.ControlLight;
-            dataGridViewCellStyle3.ForeColor = System.Drawing.SystemColors.ControlLight;
-            this.ResourcePath.DefaultCellStyle = dataGridViewCellStyle3;
-            this.ResourcePath.FillWeight = 80F;
-            this.ResourcePath.HeaderText = "Resource Path";
-            this.ResourcePath.Name = "ResourcePath";
-            this.ResourcePath.ReadOnly = true;
             // 
             // Output
             // 
@@ -214,16 +200,16 @@
             // 
             // PathOutput
             // 
-            dataGridViewCellStyle4.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
-            this.PathOutput.DefaultCellStyle = dataGridViewCellStyle4;
+            dataGridViewCellStyle3.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
+            this.PathOutput.DefaultCellStyle = dataGridViewCellStyle3;
             this.PathOutput.HeaderText = "Output: Path+Filename";
             this.PathOutput.Name = "PathOutput";
             // 
             // ButtonAddConfig
             // 
-            dataGridViewCellStyle5.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle5.NullValue = "Remove";
-            this.ButtonAddConfig.DefaultCellStyle = dataGridViewCellStyle5;
+            dataGridViewCellStyle4.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle4.NullValue = "Remove";
+            this.ButtonAddConfig.DefaultCellStyle = dataGridViewCellStyle4;
             this.ButtonAddConfig.FillWeight = 75F;
             this.ButtonAddConfig.HeaderText = "";
             this.ButtonAddConfig.Name = "ButtonAddConfig";
@@ -234,7 +220,7 @@
             this.AutoScaleDimensions = new System.Drawing.SizeF(6F, 13F);
             this.AutoScaleMode = System.Windows.Forms.AutoScaleMode.Font;
             this.BackColor = System.Drawing.Color.WhiteSmoke;
-            this.ClientSize = new System.Drawing.Size(843, 428);
+            this.ClientSize = new System.Drawing.Size(776, 428);
             this.Controls.Add(this.buttonAddRow);
             this.Controls.Add(this.buttonClear);
             this.Controls.Add(this.buttonLoadFlow);
@@ -264,7 +250,6 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn Input;
         private System.Windows.Forms.DataGridViewComboBoxColumn RESTtype;
         private System.Windows.Forms.DataGridViewTextBoxColumn PathInput;
-        private System.Windows.Forms.DataGridViewTextBoxColumn ResourcePath;
         private System.Windows.Forms.DataGridViewComboBoxColumn Output;
         private System.Windows.Forms.DataGridViewTextBoxColumn PathOutput;
         private System.Windows.Forms.DataGridViewButtonColumn ButtonAddConfig;
