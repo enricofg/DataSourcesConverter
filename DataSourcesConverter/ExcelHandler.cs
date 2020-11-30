@@ -19,10 +19,25 @@ namespace Excel_Lib
             //excelApplication.Visible = true;
             var excelWorksheet = (Excel.Worksheet)excelWorkbook.ActiveSheet;
 
-            string content = excelWorksheet.Cells[1, 1].Value;
-            content += (excelWorksheet.Cells[1, 2] as Excel.Range).Text;
-             
-            //TODO: read text content from every sheet of the workbook
+            string content = ""; 
+            //  content += (excelWorksheet.Cells[1, 2] as Excel.Range).Text;
+
+
+            int totalRowd = excelWorksheet.UsedRange.Rows.Count;
+            int totalColumns = excelWorksheet.UsedRange.Columns.Count;
+
+            for (int row = 1; row <= totalRowd; row++) // Count is 1048576 instead of 4
+            {
+                for (int col = 1; col <= totalColumns; col++) // Count is 16384 instead of 4
+                {
+                     content += excelWorksheet.Cells[row, col].Value + "\t";
+       
+                }
+
+            }
+
+
+                    //TODO: read text content from every sheet of the workbook
 
             excelWorkbook.Close();
             excelApplication.Quit();
