@@ -252,7 +252,7 @@ namespace DataSourcesConverter
                     var request = new RestSharp.RestRequest(inputPath, RestSharp.Method.GET);
 
                     var response = client.Execute(request).Content;
-                    MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
+                    //MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
                 }
                 catch (Exception)
                 {
