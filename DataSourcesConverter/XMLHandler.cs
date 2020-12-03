@@ -36,4 +36,7 @@ namespace DataSourcesConverter
             return listElements;
         }
     }
+
+    //XML file to 
+    //https://social.msdn.microsoft.com/Forums/officeocs/en-US/36758899-1dd9-4b1d-9c37-285e584c151e/xml-to-html-tables?forum=csharpgeneral
 }
