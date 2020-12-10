@@ -10,30 +10,44 @@ namespace Excel_Lib
 {
     public class ExcelHandler
     {
-        public static string ReadFromExcelFile(string filename)
+        public static List<String> ReadFromExcelFile(string filename)
         {
-            var excelApplication = new Excel.Application();
+            var excelApplication = new Excel.Application(); 
 
             //open excel file
             var excelWorkbook = excelApplication.Workbooks.Open(filename);
             //excelApplication.Visible = true;
-            var excelWorksheet = (Excel.Worksheet)excelWorkbook.ActiveSheet;
+           
+            //var excelWorksheet = (Excel.Worksheet)excelWorkbook.ActiveSheet;
 
-            string content = ""; 
+            var excelWorksheet = (Excel.Worksheet)excelApplication.Worksheets[1];
+
+
+            string content = "";
+            var Lntent = new List<String>();
             //  content += (excelWorksheet.Cells[1, 2] as Excel.Range).Text;
 
 
             int totalRowd = excelWorksheet.UsedRange.Rows.Count;
-            int totalColumns = excelWorksheet.UsedRange.Columns.Count;
+            int count = excelWorksheet.UsedRange.Columns.Count;
+            int totalColumns = count;
 
-            for (int row = 1; row <= totalRowd; row++) // Count is 1048576 instead of 4
+            for (int sheet = 1; sheet <= excelWorkbook.Sheets.Count; sheet++)
             {
-                for (int col = 1; col <= totalColumns; col++) // Count is 16384 instead of 4
+                excelWorksheet = (Excel.Worksheet)excelApplication.Worksheets[sheet];
+                
+                for (int row = 1; row <= totalRowd; row++) // Count is 1048576 instead of 4
                 {
-                     content += excelWorksheet.Cells[row, col].Value + "\t";
-       
-                }
+                    for (int col = 1; col <= totalColumns; col++) // Count is 16384 instead of 4
+                    {
+                        content += excelWorksheet.Cells[row, col].Value + "\t";
+                        content += "\n";
+                        Lntent.Add(content);
 
+                    }
+
+
+                }
             }
 
 
@@ -46,7 +60,7 @@ namespace Excel_Lib
             ReleaseComObject(excelWorkbook);
             ReleaseComObject(excelApplication);
 
-            return content;
+            return Lntent;
         }      
 
         private static void ReleaseComObject(Object obj)

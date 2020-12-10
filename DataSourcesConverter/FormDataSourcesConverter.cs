@@ -214,9 +214,22 @@ namespace DataSourcesConverter
             {
                 try
                 {
+<<<<<<< HEAD
                     string readExcel = Excel_Lib.ExcelHandler.ReadFromExcelFile(inputPath);
                     //MessageBox.Show("The define output path is " + outputPath + " and the read excel message is:\n" + readExcel);
                     WriteOutput(outputOption, outputPath, readExcel);
+=======
+                    List<string> readExcel = Excel_Lib.ExcelHandler.ReadFromExcelFile(inputPath);
+                    string outputExcel = "";
+
+                    foreach (string item in readExcel)
+                    {
+                        outputExcel+= item;
+                    }
+
+                    MessageBox.Show("The define output path is " + outputPath + " and the read excel message is:\n" + readExcel);
+                    WriteOutput(outputOption, outputPath, outputExcel);                    
+>>>>>>> 44e5d04 (Ler dados todos de qualquer folha do ficheiro excel e as celulas todas)
                 }
                 catch (Exception)
                 {
