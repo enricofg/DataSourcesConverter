@@ -36,7 +36,8 @@ namespace DataSourcesConverter
                 e.RowIndex >= 0 && 
                 dg.Rows[e.RowIndex].IsNewRow == false)
             {
-                //TODO - Button Clicked - Execute Code Here                              
+                /*var result = MessageBox.Show("Are you sure you want to delete the row?", "Are you sure?", MessageBoxButtons.OKCancel);
+                if (result == DialogResult.OK) { }*/
                 dg.Rows.RemoveAt(e.RowIndex);
             }
         }
@@ -74,6 +75,7 @@ namespace DataSourcesConverter
             DataGridViewCell inputPathCell = row.Cells["PathInput"];
             DataGridViewCell outputCell = row.Cells["Output"];
             DataGridViewCell outputPathCell = row.Cells["PathOutput"];
+            
             e.Cancel = ValidateCells(inputCell, inputPathCell, outputCell, outputPathCell);
         }
 
@@ -91,73 +93,66 @@ namespace DataSourcesConverter
             saveFileDialog1.InitialDirectory = Application.StartupPath;
             saveFileDialog1.Filter = "xml files (*.bin)|*.bin";
 
+            if(dg.Rows.Count == 0)
+            {
+                MessageBox.Show("Cannot save empty flow configuration.");
+                return;
+            }
+
             //se o utilizador selecionou o botão "OK"
             if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
             {
                 file = saveFileDialog1.FileName;
             }
-            
-            if (dataGridView.Rows.Count != 0 && file != "")
+            else
             {
-                try
+                return;
+            }
+
+            try
+            {
+                //source: https://stackoverflow.com/questions/2952161/c-sharp-saving-a-datagridview-to-file-and-loading
+                using (BinaryWriter bw = new BinaryWriter(File.Open(file, FileMode.Create)))
                 {
-                    //source: https://stackoverflow.com/questions/2952161/c-sharp-saving-a-datagridview-to-file-and-loading
-                    using (BinaryWriter bw = new BinaryWriter(File.Open(file, FileMode.Create)))
+                    bw.Write(dg.Columns.Count);
+                    bw.Write(dg.Rows.Count);
+                    foreach (DataGridViewRow row in dg.Rows)
                     {
-                        bw.Write(dg.Columns.Count);
-                        bw.Write(dg.Rows.Count);
-                        foreach (DataGridViewRow row in dg.Rows)
+                        if (row.IsNewRow == false) ///TODO: only save valid cells
                         {
-                            if (row.IsNewRow == false) ///TODO: only save valid cells
+                            for (int j = 0; j < dg.Columns.Count; ++j)
                             {
-                                for (int j = 0; j < dg.Columns.Count; ++j)
+                                object val = row.Cells[j].Value;
+                                if (val == null)
                                 {
-                                    object val = row.Cells[j].Value;
-                                    if (val == null)
-                                    {
-                                        bw.Write(false);
-                                        bw.Write(false);
-                                    }
-                                    else
-                                    {
-                                        bw.Write(true);
-                                        bw.Write(val.ToString());
-                                    }
+                                    bw.Write(false);
+                                    bw.Write(false);
+                                }
+                                else
+                                {
+                                    bw.Write(true);
+                                    bw.Write(val.ToString());
                                 }
                             }
                         }
                     }
+                }
 
-                    MessageBox.Show("Flow configuration saved!");
-                }
-                catch (Exception)
-                {
-                    MessageBox.Show("Error saving flow configuration!");
-                }
+                MessageBox.Show("Flow configuration saved!");
             }
-            else
+            catch (Exception)
             {
-                MessageBox.Show("Cannot save configuration! \nThe file must have a name and the data flow must not be empty.");
+                MessageBox.Show("Error saving flow configuration!");
             }
         }
         private void buttonClear_Click(object sender, EventArgs e)
         {
-            try
-            {
-                dataGridView.DataSource = null;
-                dataGridView.Rows.Clear();
-                dataGridView.Refresh();    
-            }
-            catch (Exception)
-            {
-                MessageBox.Show("Error clearing flow!");
-            }
+            ResetDataGridView();
         }
 
         private void buttonLoadFlow_Click(object sender, EventArgs e)
         {
-            DataGridView dg = dataGridView;
-            dg.Rows.Clear();
+            DataGridView dg = dataGridView; 
             string file = "";
 
             openFileDialog1.InitialDirectory = Application.StartupPath;
@@ -168,9 +163,15 @@ namespace DataSourcesConverter
             {
                 file = openFileDialog1.FileName;
             }
+            else
+            {
+                return;
+            }
             
             try
             {
+                ResetDataGridView();
+
                 using (BinaryReader bw = new BinaryReader(File.Open(file, FileMode.Open)))
                 {
                     int n = bw.ReadInt32();
@@ -206,6 +207,19 @@ namespace DataSourcesConverter
             }
 
             return true;
+        }
+
+        private void ResetDataGridView()
+        {
+            while (dataGridView.Rows.Count != 0) 
+            {
+                foreach (DataGridViewRow row in dataGridView.Rows)
+                {                   
+                    dataGridView.Rows.Remove(row);
+                }
+            }            
+            dataGridView.DataSource = null;            
+            dataGridView.Refresh();            
         }
 
         private static void RunFlowRowItemOptions(string inputOption, string inputPath, string outputOption, string outputPath)
@@ -255,6 +269,24 @@ namespace DataSourcesConverter
                 {
                     MessageBox.Show("File at path \"" + inputPath + "\" not found!");
                 }
+            } else if (inputOption == C_RESTFUL_API)
+            {
+                try
+                {
+                    var client = new RestSharp.RestClient(inputPath);
+                    var request = new RestSharp.RestRequest(inputPath, RestSharp.Method.GET);
+
+                    var response = client.Execute(request).Content;
+                    //MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
+                }
+                catch (Exception)
+                {
+                    MessageBox.Show("Error requesting: "+inputPath);
+                }               
+
+            } else
+            {
+                //MQTT broker
             }
         }
 
@@ -271,6 +303,10 @@ namespace DataSourcesConverter
                     //Close the file
                     MessageBox.Show("HTML File " + outputPath + ".html created!");
                     sw.Close();
+                }
+                else
+                {
+                    //output em REST
                 }
             }
             catch (Exception e)
