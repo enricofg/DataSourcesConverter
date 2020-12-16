@@ -197,8 +197,7 @@
             this.Input.Items.AddRange(new object[] {
             "Excel File",
             "XML File",
-            "RESTful API",
-            "Broker"});
+            "RESTful API"});
             this.Input.Name = "Input";
             // 
             // PathInput

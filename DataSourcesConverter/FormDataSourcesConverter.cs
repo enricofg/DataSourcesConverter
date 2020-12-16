@@ -12,9 +12,8 @@ namespace DataSourcesConverter
         private const string C_EXCEL_FILE = "Excel File";
         private const string C_XML_FILE = "XML File";
         private const string C_RESTFUL_API = "RESTful API";
-        private const string C_BROKER = "Broker";
         private const string C_HTML_PAGE = "HTML Page";
-        private string[] validInputs = { C_EXCEL_FILE, C_XML_FILE, C_RESTFUL_API, C_BROKER };
+        private string[] validInputs = { C_EXCEL_FILE, C_XML_FILE, C_RESTFUL_API };
         private string[] validOutputs = { C_HTML_PAGE, C_RESTFUL_API };
         private DataGridView dg = new DataGridView();
 
@@ -87,7 +86,7 @@ namespace DataSourcesConverter
         private void buttonSaveFlow_Click(object sender, EventArgs e)
         {
             dg = dataGridView;
-            string file = "";
+            string file;
 
             saveFileDialog1.InitialDirectory = Application.StartupPath;
             saveFileDialog1.Filter = "xml files (*.xml)|*.xml";
@@ -109,34 +108,7 @@ namespace DataSourcesConverter
             }
 
             try
-            {
-                //source: https://stackoverflow.com/questions/2952161/c-sharp-saving-a-datagridview-to-file-and-loading
-                /*using (BinaryWriter bw = new BinaryWriter(File.Open(file, FileMode.Create)))
-                {
-                    bw.Write(dg.Columns.Count);
-                    bw.Write(dg.Rows.Count);
-                    foreach (DataGridViewRow row in dg.Rows)
-                    {
-                        if (row.IsNewRow == false) ///TODO: only save valid cells
-                        {
-                            for (int j = 0; j < dg.Columns.Count; ++j)
-                            {
-                                object val = row.Cells[j].Value;
-                                if (val == null)
-                                {
-                                    bw.Write(false);
-                                    bw.Write(false);
-                                }
-                                else
-                                {
-                                    bw.Write(true);
-                                    bw.Write(val.ToString());
-                                }
-                            }
-                        }
-                    }
-                }*/     
-
+            {  
                 DataTable dt = GetDataTableFromDGV(dg);
                 DataSet ds = new DataSet();
                 ds.DataSetName = "flow";
@@ -158,7 +130,7 @@ namespace DataSourcesConverter
         private void buttonLoadFlow_Click(object sender, EventArgs e)
         {
             dg = dataGridView; 
-            string file = "";
+            string file;
 
             openFileDialog1.InitialDirectory = Application.StartupPath;
             openFileDialog1.Filter = "xml files (*.xml)|*.xml";
@@ -208,7 +180,7 @@ namespace DataSourcesConverter
         }
         #endregion
 
-        private Boolean ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
+        private bool ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
         {
             if (validInputs.Contains(inputCell.Value) && validOutputs.Contains(outputCell.Value) && inputPathCell.Value != null && outputPathCell.Value != null)
             {
@@ -251,20 +223,23 @@ namespace DataSourcesConverter
                 try
                 {
                     XMLHandler XMLHandler = new XMLHandler(inputPath);
-                    List<string> infoXML = XMLHandler.GetXMLInfo();
-                    string outputXML = "";
-
-                    foreach (string item in infoXML)
+                    if (outputOption == C_HTML_PAGE)
                     {
-                        outputXML += item;
-                    }
+                        string htmlFromXML = XMLHandler.GetXMLString();
 
-                    WriteOutput(outputOption, outputPath, outputXML);
+                        WriteOutput(outputOption, outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
+                    }
+                    else
+                    {
+                        //REST
+                        MessageBox.Show(XMLHandler.XMLToJson());
+                    }
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("File at path \"" + inputPath + "\" not found!");
                 }
+               
             } else if (inputOption == C_RESTFUL_API)
             {
                 try
@@ -279,12 +254,9 @@ namespace DataSourcesConverter
                 catch (Exception)
                 {
                     MessageBox.Show("Error requesting: "+inputPath);
-                }               
+                }              
 
-            } else
-            {
-                //MQTT broker
-            }
+            } 
         }
 
         private static void WriteOutput(string outputOption, string outputPath, string readInfo)
@@ -303,6 +275,7 @@ namespace DataSourcesConverter
                 }
                 else
                 {
+
                     //output em REST
                     //POST para output URL: transformar input para estrutura json necessária (string? formatada)
                 }
