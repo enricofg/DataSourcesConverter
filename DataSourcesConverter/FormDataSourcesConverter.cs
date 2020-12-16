@@ -39,7 +39,6 @@ namespace DataSourcesConverter
             }
         }
 
-
         private void dataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
         {
             var senderGrid = (DataGridView)sender;
@@ -51,19 +50,15 @@ namespace DataSourcesConverter
                 string filepath;
 
                 openFileDialog1.InitialDirectory = Application.StartupPath;
-                openFileDialog1.Filter = "xml files (*.xml)|*.xml";
+                openFileDialog1.Filter = "XML or Excel Files|*.xml; *.xlsx";
 
                 //se o utilizador selecionou o botão "OK"
-                if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                if (openFileDialog1.ShowDialog() == DialogResult.OK)
                 {
                     filepath = openFileDialog1.FileName;
-                }
-                else
-                {
-                    return;
-                }
 
-                dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = filepath;
+                    dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = filepath;
+                }
             }
         }
 
@@ -126,7 +121,7 @@ namespace DataSourcesConverter
             }
 
             //se o utilizador selecionou o botão "OK"
-            if (saveFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (saveFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 file = saveFileDialog1.FileName;
             }
@@ -160,7 +155,7 @@ namespace DataSourcesConverter
             openFileDialog1.Filter = "xml files (*.xml)|*.xml";
 
             //se o utilizador selecionou o botão "OK"
-            if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+            if (openFileDialog1.ShowDialog() == DialogResult.OK)
             {
                 file = openFileDialog1.FileName;
             }
