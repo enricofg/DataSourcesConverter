@@ -48,6 +48,7 @@
             this.tabControlDashboard = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
+            this.folderBrowserDialog1 = new System.Windows.Forms.FolderBrowserDialog();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.tabControlDashboard.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -275,6 +276,7 @@
         private System.Windows.Forms.DataGridViewComboBoxColumn Output;
         private System.Windows.Forms.DataGridViewTextBoxColumn PathOutput;
         private System.Windows.Forms.DataGridViewButtonColumn ButtonAddConfig;
+        private System.Windows.Forms.FolderBrowserDialog folderBrowserDialog1;
     }
 }
 

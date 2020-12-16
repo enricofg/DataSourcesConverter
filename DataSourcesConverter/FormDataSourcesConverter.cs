@@ -4,6 +4,8 @@ using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using System.Data;
+using Newtonsoft.Json;
+using System.Xml;
 
 namespace DataSourcesConverter
 {
@@ -44,20 +46,27 @@ namespace DataSourcesConverter
             var senderGrid = (DataGridView)sender;
             dg = dataGridView;
 
-            if (senderGrid.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn &&
-                (e.ColumnIndex == 1 || e.ColumnIndex == 3)) //&& dg.Rows[e.RowIndex].Cells[e.ColumnIndex].IsInEditMode == true
+            if (senderGrid.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn) // && (e.ColumnIndex == 1 || e.ColumnIndex == 3) && dg.Rows[e.RowIndex].Cells[e.ColumnIndex].IsInEditMode == true
             {
-                string filepath;
-
-                openFileDialog1.InitialDirectory = Application.StartupPath;
-                openFileDialog1.Filter = "XML or Excel Files|*.xml; *.xlsx";
-
-                //se o utilizador selecionou o botão "OK"
-                if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                if (e.ColumnIndex == 1)
                 {
-                    filepath = openFileDialog1.FileName;
+                    openFileDialog1.InitialDirectory = Application.StartupPath;
+                    openFileDialog1.Filter = "XML or Excel Files|*.xml; *.xlsx";
 
-                    dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = filepath;
+                    if (openFileDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = openFileDialog1.FileName;
+                    }
+                }
+                else if (e.ColumnIndex == 3)
+                {
+                    //TODO: find a better browser/file dialog
+                    folderBrowserDialog1.ShowNewFolderButton = true;
+
+                    if(folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    {
+                        dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = folderBrowserDialog1.SelectedPath;
+                    }
                 }
             }
         }
@@ -273,7 +282,20 @@ namespace DataSourcesConverter
 
                     var response = client.Execute(request).Content;
                     MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
-                    WriteHTMLOutput(outputPath, response);
+                    try
+                    {
+                        var xmlFromJson = JsonConvert.DeserializeXmlNode(response, "root");
+                        xmlFromJson.Save("xmlFromJson.xml");
+                        XMLHandler XMLHandler = new XMLHandler("xmlFromJson.xml");
+                        string htmlFromXML = XMLHandler.GetXMLString();
+
+                        WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
+                    } catch (JsonSerializationException e)
+                    {
+                        MessageBox.Show("ERROR: It was not possible to write response as HTML. \nReason: "+e.Message);
+                    }
+                    //TODO: verificar se resposta do servidor foi OK
+
                 }
                 catch (Exception)
                 {
