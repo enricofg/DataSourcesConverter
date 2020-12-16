@@ -1,13 +1,9 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.ComponentModel;
-using System.Data;
-using System.Drawing;
 using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 using System.Windows.Forms;
 using System.IO;
+using System.Data;
 
 namespace DataSourcesConverter
 {
@@ -16,10 +12,10 @@ namespace DataSourcesConverter
         private const string C_EXCEL_FILE = "Excel File";
         private const string C_XML_FILE = "XML File";
         private const string C_RESTFUL_API = "RESTful API";
-        private const string C_BROKER = "Broker";
         private const string C_HTML_PAGE = "HTML Page";
-        private string[] validInputs = { C_EXCEL_FILE, C_XML_FILE, C_RESTFUL_API, C_BROKER };
+        private string[] validInputs = { C_EXCEL_FILE, C_XML_FILE, C_RESTFUL_API };
         private string[] validOutputs = { C_HTML_PAGE, C_RESTFUL_API };
+        private DataGridView dg = new DataGridView();
 
         public FormDataSourcesConverter()
         {
@@ -30,7 +26,7 @@ namespace DataSourcesConverter
         private void dataGridView1_CellContentClick(object sender, DataGridViewCellEventArgs e)
         {
             var senderGrid = (DataGridView)sender;
-            DataGridView dg = dataGridView;
+            dg = dataGridView;
 
             if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
                 e.RowIndex >= 0 && 
@@ -44,7 +40,7 @@ namespace DataSourcesConverter
 
         private void buttonRunFlow_Click(object sender, EventArgs e)
         {
-            DataGridView dg = dataGridView;
+            dg = dataGridView;
 
             foreach (DataGridViewRow row in dg.Rows)
             {
@@ -84,14 +80,16 @@ namespace DataSourcesConverter
             dataGridView.Rows.Add();
         }
 
+
+        //save flow in .xml and validate with .xsd
         #region Flow Configuration Controls
         private void buttonSaveFlow_Click(object sender, EventArgs e)
         {
-            DataGridView dg = dataGridView;
-            string file = "";
+            dg = dataGridView;
+            string file;
 
             saveFileDialog1.InitialDirectory = Application.StartupPath;
-            saveFileDialog1.Filter = "xml files (*.bin)|*.bin";
+            saveFileDialog1.Filter = "xml files (*.xml)|*.xml";
 
             if(dg.Rows.Count == 0)
             {
@@ -110,33 +108,12 @@ namespace DataSourcesConverter
             }
 
             try
-            {
-                //source: https://stackoverflow.com/questions/2952161/c-sharp-saving-a-datagridview-to-file-and-loading
-                using (BinaryWriter bw = new BinaryWriter(File.Open(file, FileMode.Create)))
-                {
-                    bw.Write(dg.Columns.Count);
-                    bw.Write(dg.Rows.Count);
-                    foreach (DataGridViewRow row in dg.Rows)
-                    {
-                        if (row.IsNewRow == false) ///TODO: only save valid cells
-                        {
-                            for (int j = 0; j < dg.Columns.Count; ++j)
-                            {
-                                object val = row.Cells[j].Value;
-                                if (val == null)
-                                {
-                                    bw.Write(false);
-                                    bw.Write(false);
-                                }
-                                else
-                                {
-                                    bw.Write(true);
-                                    bw.Write(val.ToString());
-                                }
-                            }
-                        }
-                    }
-                }
+            {  
+                DataTable dt = GetDataTableFromDGV(dg);
+                DataSet ds = new DataSet();
+                ds.DataSetName = "flow";
+                ds.Tables.Add(dt);
+                ds.WriteXml(file);
 
                 MessageBox.Show("Flow configuration saved!");
             }
@@ -152,11 +129,11 @@ namespace DataSourcesConverter
 
         private void buttonLoadFlow_Click(object sender, EventArgs e)
         {
-            DataGridView dg = dataGridView; 
-            string file = "";
+            dg = dataGridView; 
+            string file;
 
             openFileDialog1.InitialDirectory = Application.StartupPath;
-            openFileDialog1.Filter = "xml files (*.bin)|*.bin";
+            openFileDialog1.Filter = "xml files (*.xml)|*.xml";
 
             //se o utilizador selecionou o botão "OK"
             if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
@@ -167,27 +144,31 @@ namespace DataSourcesConverter
             {
                 return;
             }
-            
+
             try
             {
                 ResetDataGridView();
 
-                using (BinaryReader bw = new BinaryReader(File.Open(file, FileMode.Open)))
+                XMLHandler XMLHandler = new XMLHandler(file);
+                if(XMLHandler.ValidateXML() == false)
                 {
-                    int n = bw.ReadInt32();
-                    int m = bw.ReadInt32();
-                    for (int i = 0; i < m; ++i)
-                    {
-                        dg.Rows.Add();
-                        for (int j = 0; j < n; ++j)
-                        {
-                            if (bw.ReadBoolean())
-                            {
-                                dg.Rows[i].Cells[j].Value = bw.ReadString();
-                            }
-                            else bw.ReadBoolean();
-                        }
-                    }
+                    MessageBox.Show(XMLHandler.ValidationMessage);
+                    return;
+                }
+
+                DataSet ds = new DataSet();
+                ds.ReadXml(file);
+                DataTable dt = ds.Tables[0];
+                int i = 0;
+
+                foreach (DataRow flowRow in dt.Rows)
+                {
+                    dg.Rows.Add();
+                    dg.Rows[i].Cells[0].Value = flowRow.ItemArray[0].ToString();
+                    dg.Rows[i].Cells[1].Value = flowRow.ItemArray[1].ToString();
+                    dg.Rows[i].Cells[2].Value = flowRow.ItemArray[2].ToString();
+                    dg.Rows[i].Cells[3].Value = flowRow.ItemArray[3].ToString();
+                    i++;
                 }
 
                 MessageBox.Show("Data flow configuration loaded!");
@@ -199,7 +180,7 @@ namespace DataSourcesConverter
         }
         #endregion
 
-        private Boolean ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
+        private bool ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
         {
             if (validInputs.Contains(inputCell.Value) && validOutputs.Contains(outputCell.Value) && inputPathCell.Value != null && outputPathCell.Value != null)
             {
@@ -242,20 +223,23 @@ namespace DataSourcesConverter
                 try
                 {
                     XMLHandler XMLHandler = new XMLHandler(inputPath);
-                    List<string> infoXML = XMLHandler.GetXMLInfo();
-                    string outputXML = "";
-
-                    foreach (string item in infoXML)
+                    if (outputOption == C_HTML_PAGE)
                     {
-                        outputXML += item;
-                    }
+                        string htmlFromXML = XMLHandler.GetXMLString();
 
-                    WriteOutput(outputOption, outputPath, outputXML);
+                        WriteOutput(outputOption, outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
+                    }
+                    else
+                    {
+                        //REST
+                        MessageBox.Show(XMLHandler.XMLToJson());
+                    }
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("File at path \"" + inputPath + "\" not found!");
                 }
+               
             } else if (inputOption == C_RESTFUL_API)
             {
                 try
@@ -264,17 +248,15 @@ namespace DataSourcesConverter
                     var request = new RestSharp.RestRequest(inputPath, RestSharp.Method.GET);
 
                     var response = client.Execute(request).Content;
-                    //MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
+                    MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
+                    WriteOutput(outputOption, outputPath, response);
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Error requesting: "+inputPath);
-                }               
+                }              
 
-            } else
-            {
-                //MQTT broker
-            }
+            } 
         }
 
         private static void WriteOutput(string outputOption, string outputPath, string readInfo)
@@ -293,7 +275,9 @@ namespace DataSourcesConverter
                 }
                 else
                 {
+
                     //output em REST
+                    //POST para output URL: transformar input para estrutura json necessária (string? formatada)
                 }
             }
             catch (Exception e)
@@ -305,5 +289,37 @@ namespace DataSourcesConverter
                 Console.WriteLine("Executing finally block.");
             }
         }
+
+        //source: https://social.msdn.microsoft.com/Forums/vstudio/en-US/e7c7c46d-344f-4265-837b-e68eea0ecce0/export-datagridview-to-xml-file-without-any-dataset-or-datatable-?forum=csharpgeneral
+        private DataTable GetDataTableFromDGV(DataGridView dgv)
+        {
+            var dt = new DataTable();
+            dt.TableName = "flowRow";
+            foreach (DataGridViewColumn column in dgv.Columns)
+            {
+                if (column.Visible)
+                {
+                    dt.Columns.Add();
+                }
+            }
+
+            dt.Columns[0].ColumnName = "inputType";
+            dt.Columns[1].ColumnName = "inputLocation";
+            dt.Columns[2].ColumnName = "outputType";
+            dt.Columns[3].ColumnName = "outputLocation";
+
+            object[] cellValues = new object[dgv.Columns.Count];
+            foreach (DataGridViewRow row in dgv.Rows)
+            {
+                for (int i = 0; i < row.Cells.Count; i++)
+                {
+                    cellValues[i] = row.Cells[i].Value;
+                }
+                dt.Rows.Add(cellValues);
+            }
+
+            return dt;
+        }
     }
+
 }
