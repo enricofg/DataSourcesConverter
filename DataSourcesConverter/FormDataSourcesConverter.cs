@@ -32,9 +32,38 @@ namespace DataSourcesConverter
                 e.RowIndex >= 0 && 
                 dg.Rows[e.RowIndex].IsNewRow == false)
             {
+                //confirm deletion?
                 /*var result = MessageBox.Show("Are you sure you want to delete the row?", "Are you sure?", MessageBoxButtons.OKCancel);
                 if (result == DialogResult.OK) { }*/
                 dg.Rows.RemoveAt(e.RowIndex);
+            }
+        }
+
+
+        private void dataGridView_CellDoubleClick(object sender, DataGridViewCellEventArgs e)
+        {
+            var senderGrid = (DataGridView)sender;
+            dg = dataGridView;
+
+            if (senderGrid.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn &&
+                (e.ColumnIndex == 1 || e.ColumnIndex == 3)) //&& dg.Rows[e.RowIndex].Cells[e.ColumnIndex].IsInEditMode == true
+            {
+                string filepath;
+
+                openFileDialog1.InitialDirectory = Application.StartupPath;
+                openFileDialog1.Filter = "xml files (*.xml)|*.xml";
+
+                //se o utilizador selecionou o botão "OK"
+                if (openFileDialog1.ShowDialog() == System.Windows.Forms.DialogResult.OK)
+                {
+                    filepath = openFileDialog1.FileName;
+                }
+                else
+                {
+                    return;
+                }
+
+                dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = filepath;
             }
         }
 
@@ -80,7 +109,6 @@ namespace DataSourcesConverter
             dataGridView.Rows.Add();
         }
 
-
         //save flow in .xml and validate with .xsd
         #region Flow Configuration Controls
         private void buttonSaveFlow_Click(object sender, EventArgs e)
@@ -121,10 +149,6 @@ namespace DataSourcesConverter
             {
                 MessageBox.Show("Error saving flow configuration!");
             }
-        }
-        private void buttonClear_Click(object sender, EventArgs e)
-        {
-            ResetDataGridView();
         }
 
         private void buttonLoadFlow_Click(object sender, EventArgs e)
@@ -178,6 +202,11 @@ namespace DataSourcesConverter
                 MessageBox.Show("Error loading flow configuration!");
             }
         }
+
+        private void buttonClear_Click(object sender, EventArgs e)
+        {
+            ResetDataGridView();
+        }
         #endregion
 
         private bool ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
@@ -211,7 +240,7 @@ namespace DataSourcesConverter
                 {
                     string readExcel = Excel_Lib.ExcelHandler.ReadFromExcelFile(inputPath);
                     //MessageBox.Show("The define output path is " + outputPath + " and the read excel message is:\n" + readExcel);
-                    WriteOutput(outputOption, outputPath, readExcel);
+                    WriteHTMLOutput(outputPath, readExcel);
                 }
                 catch (Exception)
                 {
@@ -227,7 +256,7 @@ namespace DataSourcesConverter
                     {
                         string htmlFromXML = XMLHandler.GetXMLString();
 
-                        WriteOutput(outputOption, outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
+                        WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
                     }
                     else
                     {
@@ -249,7 +278,7 @@ namespace DataSourcesConverter
 
                     var response = client.Execute(request).Content;
                     MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
-                    WriteOutput(outputOption, outputPath, response);
+                    WriteHTMLOutput(outputPath, response);
                 }
                 catch (Exception)
                 {
@@ -259,34 +288,23 @@ namespace DataSourcesConverter
             } 
         }
 
-        private static void WriteOutput(string outputOption, string outputPath, string readInfo)
+        private static void WriteHTMLOutput(string outputPath, string readInfo)
         {
             try
             {
-                if (outputOption == C_HTML_PAGE)
-                {
-                    //Pass the filepath and filename to the StreamWriter Constructor
-                    StreamWriter sw = new StreamWriter(outputPath + ".html");
-                    //Write a line of text
-                    sw.WriteLine(readInfo);
-                    //Close the file
-                    MessageBox.Show("HTML File " + outputPath + ".html created!");
-                    sw.Close();
-                }
-                else
-                {
 
-                    //output em REST
-                    //POST para output URL: transformar input para estrutura json necessária (string? formatada)
-                }
+                //Pass the filepath and filename to the StreamWriter Constructor
+                StreamWriter sw = new StreamWriter(outputPath + ".html");
+                //Write a line of text
+                sw.WriteLine(readInfo);
+                //Close the file
+                MessageBox.Show("HTML File " + outputPath + ".html created!");
+                sw.Close();
+                
             }
             catch (Exception e)
             {
                 Console.WriteLine("Write error - Exception: " + e.Message);
-            }
-            finally
-            {
-                Console.WriteLine("Executing finally block.");
             }
         }
 

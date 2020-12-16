@@ -28,11 +28,16 @@
         /// </summary>
         private void InitializeComponent()
         {
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle7 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle8 = new System.Windows.Forms.DataGridViewCellStyle();
-            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle9 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle1 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle2 = new System.Windows.Forms.DataGridViewCellStyle();
+            System.Windows.Forms.DataGridViewCellStyle dataGridViewCellStyle3 = new System.Windows.Forms.DataGridViewCellStyle();
             this.buttonRunFlow = new System.Windows.Forms.Button();
             this.dataGridView = new System.Windows.Forms.DataGridView();
+            this.Input = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.PathInput = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.Output = new System.Windows.Forms.DataGridViewComboBoxColumn();
+            this.PathOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
+            this.ButtonAddConfig = new System.Windows.Forms.DataGridViewButtonColumn();
             this.buttonSaveFlow = new System.Windows.Forms.Button();
             this.buttonLoadFlow = new System.Windows.Forms.Button();
             this.buttonClear = new System.Windows.Forms.Button();
@@ -43,11 +48,6 @@
             this.tabControlDashboard = new System.Windows.Forms.TabControl();
             this.tabPage1 = new System.Windows.Forms.TabPage();
             this.tabPage2 = new System.Windows.Forms.TabPage();
-            this.Input = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.PathInput = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.Output = new System.Windows.Forms.DataGridViewComboBoxColumn();
-            this.PathOutput = new System.Windows.Forms.DataGridViewTextBoxColumn();
-            this.ButtonAddConfig = new System.Windows.Forms.DataGridViewButtonColumn();
             ((System.ComponentModel.ISupportInitialize)(this.dataGridView)).BeginInit();
             this.tabControlDashboard.SuspendLayout();
             this.tabPage1.SuspendLayout();
@@ -85,7 +85,50 @@
             this.dataGridView.Size = new System.Drawing.Size(724, 269);
             this.dataGridView.TabIndex = 3;
             this.dataGridView.CellContentClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView1_CellContentClick);
+            this.dataGridView.CellDoubleClick += new System.Windows.Forms.DataGridViewCellEventHandler(this.dataGridView_CellDoubleClick);
             this.dataGridView.RowValidating += new System.Windows.Forms.DataGridViewCellCancelEventHandler(this.dataGridView1_RowValidating);
+            // 
+            // Input
+            // 
+            this.Input.FlatStyle = System.Windows.Forms.FlatStyle.System;
+            this.Input.HeaderText = "Input Type";
+            this.Input.Items.AddRange(new object[] {
+            "Excel File",
+            "XML File",
+            "RESTful API"});
+            this.Input.Name = "Input";
+            // 
+            // PathInput
+            // 
+            dataGridViewCellStyle1.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
+            this.PathInput.DefaultCellStyle = dataGridViewCellStyle1;
+            this.PathInput.HeaderText = "File Path / URL / IP";
+            this.PathInput.Name = "PathInput";
+            // 
+            // Output
+            // 
+            this.Output.HeaderText = "Output Type";
+            this.Output.Items.AddRange(new object[] {
+            "HTML Page",
+            "RESTful API"});
+            this.Output.Name = "Output";
+            // 
+            // PathOutput
+            // 
+            dataGridViewCellStyle2.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
+            this.PathOutput.DefaultCellStyle = dataGridViewCellStyle2;
+            this.PathOutput.HeaderText = "Output: Path+Filename";
+            this.PathOutput.Name = "PathOutput";
+            // 
+            // ButtonAddConfig
+            // 
+            dataGridViewCellStyle3.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
+            dataGridViewCellStyle3.NullValue = "Remove";
+            this.ButtonAddConfig.DefaultCellStyle = dataGridViewCellStyle3;
+            this.ButtonAddConfig.FillWeight = 75F;
+            this.ButtonAddConfig.HeaderText = "";
+            this.ButtonAddConfig.Name = "ButtonAddConfig";
+            this.ButtonAddConfig.Text = "";
             // 
             // buttonSaveFlow
             // 
@@ -189,48 +232,6 @@
             this.tabPage2.Size = new System.Drawing.Size(725, 269);
             this.tabPage2.TabIndex = 1;
             this.tabPage2.Text = "Additional Settings";
-            // 
-            // Input
-            // 
-            this.Input.FlatStyle = System.Windows.Forms.FlatStyle.System;
-            this.Input.HeaderText = "Input Type";
-            this.Input.Items.AddRange(new object[] {
-            "Excel File",
-            "XML File",
-            "RESTful API"});
-            this.Input.Name = "Input";
-            // 
-            // PathInput
-            // 
-            dataGridViewCellStyle7.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
-            this.PathInput.DefaultCellStyle = dataGridViewCellStyle7;
-            this.PathInput.HeaderText = "File Path / URL / IP";
-            this.PathInput.Name = "PathInput";
-            // 
-            // Output
-            // 
-            this.Output.HeaderText = "Output Type";
-            this.Output.Items.AddRange(new object[] {
-            "HTML Page",
-            "RESTful API"});
-            this.Output.Name = "Output";
-            // 
-            // PathOutput
-            // 
-            dataGridViewCellStyle8.SelectionBackColor = System.Drawing.Color.CornflowerBlue;
-            this.PathOutput.DefaultCellStyle = dataGridViewCellStyle8;
-            this.PathOutput.HeaderText = "Output: Path+Filename";
-            this.PathOutput.Name = "PathOutput";
-            // 
-            // ButtonAddConfig
-            // 
-            dataGridViewCellStyle9.Alignment = System.Windows.Forms.DataGridViewContentAlignment.MiddleCenter;
-            dataGridViewCellStyle9.NullValue = "Remove";
-            this.ButtonAddConfig.DefaultCellStyle = dataGridViewCellStyle9;
-            this.ButtonAddConfig.FillWeight = 75F;
-            this.ButtonAddConfig.HeaderText = "";
-            this.ButtonAddConfig.Name = "ButtonAddConfig";
-            this.ButtonAddConfig.Text = "";
             // 
             // FormDataSourcesConverter
             // 
