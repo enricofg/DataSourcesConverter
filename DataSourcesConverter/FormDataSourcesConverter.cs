@@ -46,9 +46,10 @@ namespace DataSourcesConverter
 
             if (senderGrid.Columns[e.ColumnIndex] is DataGridViewTextBoxColumn) // && (e.ColumnIndex == 1 || e.ColumnIndex == 3) && dg.Rows[e.RowIndex].Cells[e.ColumnIndex].IsInEditMode == true
             {
+                openFileDialog1.InitialDirectory = Application.StartupPath;
+
                 if (e.ColumnIndex == 1)
                 {
-                    openFileDialog1.InitialDirectory = Application.StartupPath;
                     openFileDialog1.Filter = "XML or Excel Files|*.xml; *.xlsx";
 
                     if (openFileDialog1.ShowDialog() == DialogResult.OK)
@@ -58,14 +59,22 @@ namespace DataSourcesConverter
                 }
                 else if (e.ColumnIndex == 3)
                 {
-                    //TODO: find a better browser/file dialog
-                    folderBrowserDialog1.ShowNewFolderButton = true;
+                    openFileDialog1.Filter = "HTML Files|*.html";
 
-                    if(folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                    if (openFileDialog1.ShowDialog() == DialogResult.OK)
                     {
-                        dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = folderBrowserDialog1.SelectedPath;
+                        dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = openFileDialog1.FileName.Substring(0, openFileDialog1.FileName.Length - 5);
                     }
+
                 }
+
+                /*//TODO: find a better browser/file dialog
+                folderBrowserDialog1.ShowNewFolderButton = true;
+
+                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
+                {
+                    dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = folderBrowserDialog1.SelectedPath;
+                }*/
             }
         }
 
