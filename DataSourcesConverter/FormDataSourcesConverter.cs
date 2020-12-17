@@ -1,11 +1,9 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Linq;
 using System.Windows.Forms;
 using System.IO;
 using System.Data;
 using Newtonsoft.Json;
-using System.Xml;
 
 namespace DataSourcesConverter
 {
@@ -242,13 +240,17 @@ namespace DataSourcesConverter
             {
                 try
                 {
-                    string readExcel = Excel_Lib.ExcelHandler.ReadFromExcelFile(inputPath);
+                    ExcelHandler excelHandler = new ExcelHandler();
+                    XMLHandler XMLHandler = new XMLHandler(inputPath);
+                    string readExcel = ExcelHandler.ReadFromExcelFile(inputPath);
                     //MessageBox.Show("The define output path is " + outputPath + " and the read excel message is:\n" + readExcel);
-                    WriteHTMLOutput(outputPath, readExcel);
+                    //WriteHTMLOutput(outputPath, readExcel);
+                    
+                    WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(excelHandler.GetXML(inputPath)));
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("File at path \"" + inputPath + "\" not found!");
+                    MessageBox.Show("File at path \"" + inputPath + "\" cannot be opened!");
                 }
             }
             else if (inputOption == C_XML_FILE)
@@ -264,8 +266,13 @@ namespace DataSourcesConverter
                     }
                     else
                     {
-                        //REST
-                        MessageBox.Show(XMLHandler.XMLToJson());
+                        //TODO: REST output
+                        var server = new RestSharp.RestClient(outputPath);
+                        var post = new RestSharp.RestRequest(outputPath, RestSharp.Method.POST);
+                        post.AddHeader("Content-Type: application/json", XMLHandler.XMLToJson());
+
+                        var serverResponse = server.Execute(post).Content;
+                        MessageBox.Show("The REST request was made to: \n" + outputPath + "\nThe response is:\n" + serverResponse);
                     }
                 }
                 catch (Exception)
@@ -273,7 +280,8 @@ namespace DataSourcesConverter
                     MessageBox.Show("File at path \"" + inputPath + "\" not found!");
                 }
                
-            } else if (inputOption == C_RESTFUL_API)
+            } 
+            else if (inputOption == C_RESTFUL_API)
             {
                 try
                 {
@@ -282,26 +290,43 @@ namespace DataSourcesConverter
 
                     var response = client.Execute(request).Content;
                     MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
-                    try
-                    {
-                        var xmlFromJson = JsonConvert.DeserializeXmlNode(response, "root");
-                        xmlFromJson.Save("xmlFromJson.xml");
-                        XMLHandler XMLHandler = new XMLHandler("xmlFromJson.xml");
-                        string htmlFromXML = XMLHandler.GetXMLString();
 
-                        WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
-                    } catch (JsonSerializationException e)
+                    if (outputOption == C_HTML_PAGE)
                     {
-                        MessageBox.Show("ERROR: It was not possible to write response as HTML. \nReason: "+e.Message);
+                        try
+                        {
+                            var xmlFromJson = JsonConvert.DeserializeXmlNode(response, "root");
+                            xmlFromJson.Save("xmlFromJson.xml");
+                            XMLHandler XMLHandler = new XMLHandler("xmlFromJson.xml");
+                            string htmlFromXML = XMLHandler.GetXMLString();
+
+                            //TODO: verificar se resposta do servidor foi OK
+                            WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
+                        }
+                        catch (JsonSerializationException e)
+                        {
+                            MessageBox.Show("ERROR: It was not possible to write response as HTML. \nReason: " + e.Message);
+                        }
+                        finally
+                        {
+                            File.Delete("xmlFromJson.xml");                            
+                        }
                     }
-                    //TODO: verificar se resposta do servidor foi OK
+                    else
+                    {
+                        //TODO: REST output
+                        var server = new RestSharp.RestClient(outputPath);
+                        var post = new RestSharp.RestRequest(outputPath, RestSharp.Method.POST);
+                        post.AddHeader("Content-Type: application/json", response);
 
+                        var serverResponse = server.Execute(post).Content;
+                        MessageBox.Show("The REST request was made to: \n" + outputPath + "\nThe response is:\n" + serverResponse);
+                    }
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Error requesting: "+inputPath);
                 }              
-
             } 
         }
 
@@ -309,15 +334,13 @@ namespace DataSourcesConverter
         {
             try
             {
-
                 //Pass the filepath and filename to the StreamWriter Constructor
                 StreamWriter sw = new StreamWriter(outputPath + ".html");
                 //Write a line of text
                 sw.WriteLine(readInfo);
                 //Close the file
                 MessageBox.Show("HTML File " + outputPath + ".html created!");
-                sw.Close();
-                
+                sw.Close();                
             }
             catch (Exception e)
             {
