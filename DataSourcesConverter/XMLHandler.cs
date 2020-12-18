@@ -1,6 +1,8 @@
 ﻿using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
+using System.Security.Cryptography;
 using System.Text;
 using System.Xml;
 using System.Xml.Linq;
@@ -81,6 +83,7 @@ namespace DataSourcesConverter
         #region XML validation with XSD
         public bool ValidateXML()
         {
+            CheckXsdExists();
             isValid = true;
             validationMessage = "Flow configuration valid!";
             XmlDocument doc = new XmlDocument();
@@ -117,7 +120,43 @@ namespace DataSourcesConverter
         }
         #endregion
 
-        //XML file to HTML table source: https://social.msdn.microsoft.com/Forums/officeocs/en-US/36758899-1dd9-4b1d-9c37-285e584c151e/xml-to-html-tables?forum=csharpgeneral
+        public void CheckXsdExists()
+        {
+            if (File.Exists("flow_config.xsd"))
+            {
+                string hashToString = "";
+
+                using (MD5CryptoServiceProvider algorithm = new MD5CryptoServiceProvider())
+                {
+                    using (var stream = File.OpenRead("flow_config.xsd"))
+                    {
+                        byte[] hash = algorithm.ComputeHash(stream);
+                        hashToString = BitConverter.ToString(hash);
+                    }
+                }
+
+                if (string.Compare(hashToString, "0F-52-D7-B0-E8-10-76-AB-22-41-C2-F6-1D-03-B0-9A") != 0)
+                {
+                    File.Delete("flow_config.xsd");
+                    GenerateXsd();
+                }
+            }
+            else
+            {
+                GenerateXsd();
+            }
+        }
+
+        private static void GenerateXsd()
+        {
+            using (StreamWriter writer = new StreamWriter("flow_config.xsd"))
+            {
+                String xsd = @"<?xml version=""1.0"" encoding=""utf-8""?><xs:schema attributeFormDefault=""unqualified"" elementFormDefault=""qualified"" xmlns:xs=""http://www.w3.org/2001/XMLSchema""><xs:element name=""flow"" type=""flowRoot""></xs:element><xs:complexType name=""flowRoot""><xs:sequence><xs:element maxOccurs=""unbounded"" name=""flowRow"" type=""flowElement""></xs:element></xs:sequence></xs:complexType><xs:complexType name=""flowElement""><xs:sequence><xs:element maxOccurs=""1"" name=""inputType"" type=""inputTypes"" /><xs:element maxOccurs=""1"" name=""inputLocation"" type=""xs:string"" /><xs:element maxOccurs=""1"" name=""outputType"" type=""outputTypes"" /><xs:element maxOccurs=""1"" name=""outputLocation"" type=""xs:string"" /></xs:sequence></xs:complexType><xs:simpleType name=""inputTypes""><xs:restriction base=""xs:string""><xs:enumeration value=""Excel File""/><xs:enumeration value=""XML File""/><xs:enumeration value=""RESTful API""/></xs:restriction></xs:simpleType><xs:simpleType name=""outputTypes""><xs:restriction base=""xs:string""><xs:enumeration value=""HTML Page""/><xs:enumeration value=""RESTful API""/></xs:restriction></xs:simpleType></xs:schema>";
+                writer.WriteLine(xsd);
+            }
+        }
+
+        //XML file to HTML table, source: https://social.msdn.microsoft.com/Forums/officeocs/en-US/36758899-1dd9-4b1d-9c37-285e584c151e/xml-to-html-tables?forum=csharpgeneral
         public string ConvertXmlToHtmlTable(string xml)
         {
             StringBuilder html = new StringBuilder("<table align='center' " +

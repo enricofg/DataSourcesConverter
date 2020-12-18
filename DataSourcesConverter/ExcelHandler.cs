@@ -7,61 +7,11 @@ using System.IO;
 using System.Linq;
 using System.Text.RegularExpressions;
 using DataTable = System.Data.DataTable;
-using Excel = Microsoft.Office.Interop.Excel;
 using Sheets = DocumentFormat.OpenXml.Spreadsheet.Sheets;
 
 
 public class ExcelHandler
 {
-    public static string ReadFromExcelFile(string filename)
-    {
-        var excelApplication = new Excel.Application();
-        var excelWorkbook = excelApplication.Workbooks.Open(filename);
-        var excelWorksheet = (Excel.Worksheet)excelWorkbook.ActiveSheet;
-
-        string content = ""; 
-
-
-        int totalRowd = excelWorksheet.UsedRange.Rows.Count;
-        int totalColumns = excelWorksheet.UsedRange.Columns.Count;
-
-        for (int row = 1; row <= totalRowd; row++) 
-        {
-            for (int col = 1; col <= totalColumns; col++) 
-            {
-                    content += excelWorksheet.Cells[row, col].Value + "\t";       
-            }
-        }
-
-        excelWorkbook.Close();
-        excelApplication.Quit();
-
-        ReleaseComObject(excelWorksheet);
-        ReleaseComObject(excelWorkbook);
-        ReleaseComObject(excelApplication);
-
-        return content;
-    }
-
-    private static void ReleaseComObject(Object obj)
-    {
-        try
-        {
-            System.Runtime.InteropServices.Marshal.ReleaseComObject(obj);
-            obj = null;                
-        }
-        catch (Exception ex)
-        {
-            System.Diagnostics.Debug.WriteLine("Exception releasing COM Object: " + ex.Message);
-            throw;
-        }
-        finally
-        {
-            //Garbage Collector: indicar que há objetos para serem libertados da memória
-            GC.Collect();
-        }
-    }
-
     //source: https://forums.asp.net/t/1927615.aspx?how+to+convert+xls+file+to+xml+without+using+any+Provider+or+dll+or+third+party+tool
     private DataTable ReadExcelFile(string filename)
     {
