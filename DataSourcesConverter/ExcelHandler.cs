@@ -87,7 +87,7 @@ public class ExcelHandler
         }
         catch (IOException ex)
         {
-            System.Windows.Forms.MessageBox.Show("Error: "+ex.Message);
+            System.Windows.Forms.MessageBox.Show("Error: " + ex.Message);
             throw new IOException();
         }
     }

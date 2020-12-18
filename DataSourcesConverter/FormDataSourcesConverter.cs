@@ -1,10 +1,10 @@
-﻿using System;
-using System.Linq;
-using System.Windows.Forms;
-using System.IO;
+﻿using Newtonsoft.Json;
+using System;
 using System.Data;
-using Newtonsoft.Json;
+using System.IO;
+using System.Linq;
 using System.Net;
+using System.Windows.Forms;
 
 namespace DataSourcesConverter
 {
@@ -30,7 +30,7 @@ namespace DataSourcesConverter
             dg = dataGridView;
 
             if (senderGrid.Columns[e.ColumnIndex] is DataGridViewButtonColumn &&
-                e.RowIndex >= 0 && 
+                e.RowIndex >= 0 &&
                 dg.Rows[e.RowIndex].IsNewRow == false)
             {
                 //confirm deletion?
@@ -67,15 +67,7 @@ namespace DataSourcesConverter
                     {
                         dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = openFileDialog1.FileName; //.Substring(0, openFileDialog1.FileName.Length - 5);
                     }
-
                 }
-                /*//TODO: find a better browser/file dialog
-                folderBrowserDialog1.ShowNewFolderButton = true;
-
-                if (folderBrowserDialog1.ShowDialog() == DialogResult.OK)
-                {
-                    dg.Rows[e.RowIndex].Cells[e.ColumnIndex].Value = folderBrowserDialog1.SelectedPath;
-                }*/
             }
         }
 
@@ -106,13 +98,13 @@ namespace DataSourcesConverter
         }
 
         private void dataGridView1_RowValidating(object sender, DataGridViewCellCancelEventArgs e)
-        {            
+        {
             DataGridViewRow row = dataGridView.Rows[e.RowIndex];
             DataGridViewCell inputCell = row.Cells["Input"];
             DataGridViewCell inputPathCell = row.Cells["PathInput"];
             DataGridViewCell outputCell = row.Cells["Output"];
             DataGridViewCell outputPathCell = row.Cells["PathOutput"];
-            
+
             e.Cancel = ValidateCells(inputCell, inputPathCell, outputCell, outputPathCell);
         }
 
@@ -127,11 +119,11 @@ namespace DataSourcesConverter
         {
             dg = dataGridView;
             string file;
-
-            saveFileDialog1.InitialDirectory = Application.StartupPath;
+                        
+            saveFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             saveFileDialog1.Filter = "xml files (*.xml)|*.xml";
 
-            if(dg.Rows.Count == 0)
+            if (dg.Rows.Count == 0)
             {
                 MessageBox.Show("Cannot save empty flow configuration.");
                 return;
@@ -148,7 +140,7 @@ namespace DataSourcesConverter
             }
 
             try
-            {  
+            {
                 DataTable dt = GetDataTableFromDGV(dg);
                 DataSet ds = new DataSet();
                 ds.DataSetName = "flow";
@@ -165,12 +157,13 @@ namespace DataSourcesConverter
 
         private void buttonLoadFlow_Click(object sender, EventArgs e)
         {
-            dg = dataGridView; 
+            dg = dataGridView;
             string file;
 
-            openFileDialog1.InitialDirectory = Application.StartupPath;
+            openFileDialog1.InitialDirectory = Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments);
             openFileDialog1.Filter = "xml files (*.xml)|*.xml";
             openFileDialog1.FileName = "dataflow_config";
+
 
             //se o utilizador selecionou o botão "OK"
             if (openFileDialog1.ShowDialog() == DialogResult.OK)
@@ -187,7 +180,7 @@ namespace DataSourcesConverter
                 ResetDataGridView();
 
                 XMLHandler XMLHandler = new XMLHandler(file);
-                if(XMLHandler.ValidateXML() == false)
+                if (XMLHandler.ValidateXML() == false)
                 {
                     MessageBox.Show(XMLHandler.ValidationMessage);
                     return;
@@ -223,28 +216,28 @@ namespace DataSourcesConverter
         #endregion
 
         #region Internal DataGridView control functions
-            private bool ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
+        private bool ValidateCells(DataGridViewCell inputCell, DataGridViewCell inputPathCell, DataGridViewCell outputCell, DataGridViewCell outputPathCell)
+        {
+            if (validInputs.Contains(inputCell.Value) && validOutputs.Contains(outputCell.Value) && inputPathCell.Value != null && outputPathCell.Value != null)
             {
-                if (validInputs.Contains(inputCell.Value) && validOutputs.Contains(outputCell.Value) && inputPathCell.Value != null && outputPathCell.Value != null)
-                {
-                    return false;
-                }
-
-                return true;
+                return false;
             }
 
-            private void ResetDataGridView()
+            return true;
+        }
+
+        private void ResetDataGridView()
+        {
+            while (dataGridView.Rows.Count != 0)
             {
-                while (dataGridView.Rows.Count != 0)
+                foreach (DataGridViewRow row in dataGridView.Rows)
                 {
-                    foreach (DataGridViewRow row in dataGridView.Rows)
-                    {
-                        dataGridView.Rows.Remove(row);
-                    }
+                    dataGridView.Rows.Remove(row);
                 }
-                dataGridView.DataSource = null;
-                dataGridView.Refresh();
             }
+            dataGridView.DataSource = null;
+            dataGridView.Refresh();
+        }
         #endregion
 
         private static void RunFlowRowItemOptions(string inputOption, string inputPath, string outputOption, string outputPath)
@@ -253,22 +246,33 @@ namespace DataSourcesConverter
             {
                 try
                 {
+                    ExcelHandler excelHandler = new ExcelHandler();
+
+                    using (StreamWriter writer = new StreamWriter("excelToXML.xml"))
+                    {                        
+                        writer.WriteLine(excelHandler.GetXML(inputPath));
+                    }
+
+                    XMLHandler XMLHandler = new XMLHandler("excelToXML.xml");
+
                     if (outputOption == C_HTML_PAGE)
                     {
-                        ExcelHandler excelHandler = new ExcelHandler();
-                        XMLHandler XMLHandler = new XMLHandler(inputPath);
-
-                        WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(excelHandler.GetXML(inputPath)));
+                        string htmlFromXML = XMLHandler.GetXMLString();
+                        WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
                     }
                     else
                     {
-                        //REST output
+                        string jsonOutput = XMLHandler.XMLToJson();
+                        PostJsonOutput(outputPath, jsonOutput);
                     }
-
                 }
                 catch (Exception)
                 {
                     MessageBox.Show("Error opening file at path \"" + inputPath + "\".");
+                }
+                finally
+                {
+                    File.Delete("excelToXML.xml");
                 }
             }
             else if (inputOption == C_XML_FILE)
@@ -279,20 +283,20 @@ namespace DataSourcesConverter
                     if (outputOption == C_HTML_PAGE)
                     {
                         string htmlFromXML = XMLHandler.GetXMLString();
-
                         WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
                     }
                     else
                     {
-
+                        string jsonOutput = XMLHandler.XMLToJson();
+                        PostJsonOutput(outputPath, jsonOutput);
                     }
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("File at path \"" + inputPath + "\" not found!");
+                    MessageBox.Show("Error opening file at path \"" + inputPath + "\".");
                 }
-               
-            } 
+
+            }
             else if (inputOption == C_RESTFUL_API)
             {
                 try
@@ -300,8 +304,18 @@ namespace DataSourcesConverter
                     var client = new RestSharp.RestClient(inputPath);
                     var request = new RestSharp.RestRequest(inputPath, RestSharp.Method.GET);
 
-                    var response = client.Execute(request).Content;
-                    MessageBox.Show("The REST request was made to: \n"+ inputPath+"\nThe response is:\n"+ response);
+                    RestSharp.IRestResponse requestResponse = client.Execute(request);
+
+                    HttpStatusCode statusCode = requestResponse.StatusCode;
+                    int numericStatusCode = (int)statusCode;
+
+                    if (statusCode != HttpStatusCode.OK)
+                    {
+                        MessageBox.Show("Error: Could not GET at \"" + inputPath + "\".\nServer response: " + numericStatusCode + " " + statusCode);
+                        return;
+                    }
+
+                    var response = requestResponse.Content;
 
                     if (outputOption == C_HTML_PAGE)
                     {
@@ -312,7 +326,6 @@ namespace DataSourcesConverter
                             XMLHandler XMLHandler = new XMLHandler("xmlFromJson.xml");
                             string htmlFromXML = XMLHandler.GetXMLString();
 
-                            //TODO: verificar se resposta do servidor foi OK
                             WriteHTMLOutput(outputPath, XMLHandler.ConvertXmlToHtmlTable(htmlFromXML));
                         }
                         catch (JsonSerializationException e)
@@ -321,7 +334,7 @@ namespace DataSourcesConverter
                         }
                         finally
                         {
-                            File.Delete("xmlFromJson.xml");                            
+                            File.Delete("xmlFromJson.xml");
                         }
                     }
                     else
@@ -331,9 +344,9 @@ namespace DataSourcesConverter
                 }
                 catch (Exception)
                 {
-                    MessageBox.Show("Error requesting: "+inputPath);
-                }              
-            } 
+                    MessageBox.Show("Error requesting: " + inputPath);
+                }
+            }
         }
 
         private static void WriteHTMLOutput(string outputPath, string readInfo)
@@ -341,9 +354,8 @@ namespace DataSourcesConverter
             try
             {
                 StreamWriter sw;
-
                 string ext = Path.GetExtension(outputPath);
-                if (string.Compare(ext, ".html") != 0) 
+                if (string.Compare(ext, ".html") != 0)
                 {
                     sw = new StreamWriter(outputPath + ".html");
                 }
@@ -372,18 +384,18 @@ namespace DataSourcesConverter
 
             RestSharp.IRestResponse response = client.Execute(request);
 
-            MessageBox.Show("Posting JSON:\n"+jsonContent);
+            MessageBox.Show("Posting JSON:\n" + jsonContent);
 
             HttpStatusCode statusCode = response.StatusCode;
             int numericStatusCode = (int)statusCode;
 
-            if (statusCode == HttpStatusCode.Created)
+            if (statusCode == HttpStatusCode.Created || statusCode == HttpStatusCode.OK)
             {
                 MessageBox.Show("POST at " + outputPath + " successful.");
             }
             else
             {
-                MessageBox.Show("Error: POST at "+outputPath+" unsuccessful.\nServer response: "+ numericStatusCode +" "+ statusCode);
+                MessageBox.Show("Error: POST at " + outputPath + " unsuccessful.\nServer response: " + numericStatusCode + " " + statusCode);
             }
         }
 
