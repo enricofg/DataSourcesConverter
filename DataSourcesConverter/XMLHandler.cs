@@ -29,24 +29,6 @@ namespace DataSourcesConverter
             get { return validationMessage; }
         }
 
-        public List<string> GetXMLInfo()
-        {
-            List<string> listElements = new List<string>();
-
-            XmlDocument doc = new XmlDocument();
-            doc.Load(XmlFilePath);
-
-            //vários titles = vários Nodes
-            XmlNodeList elements = doc.SelectNodes("/"); 
-
-            foreach (XmlNode element in elements)
-            {
-                listElements.Add(element.InnerText);
-            }
-
-            return listElements;
-        }
-
         public string GetXMLString()
         {
             List<string> listElements = new List<string>();
@@ -54,8 +36,7 @@ namespace DataSourcesConverter
             XmlDocument doc = new XmlDocument();
             doc.Load(XmlFilePath);
 
-            //vários titles = vários Nodes
-            XmlNodeList elements = doc.SelectNodes("/"); //expressão XPath que seleciona todos os elementos
+            XmlNodeList elements = doc.SelectNodes("/"); 
 
             foreach (XmlNode element in elements)
             {
@@ -75,9 +56,10 @@ namespace DataSourcesConverter
         public string XMLToJson()
         {
             var xml = XElement.Parse(GetXMLString());
-            var jsonText = JsonConvert.SerializeObject(xml);
 
-            return jsonText;
+            string json = JsonConvert.SerializeObject(xml);
+
+            return json;
         }
 
         #region XML validation with XSD
@@ -89,10 +71,10 @@ namespace DataSourcesConverter
             XmlDocument doc = new XmlDocument();
             try
             {
-                doc.Load(XmlFilePath); //load do caminho do ficheiro xml
-                ValidationEventHandler eventHandler = new ValidationEventHandler(MyValidateMethod); 
-                doc.Schemas.Add(null, XsdFilePath); 
-                doc.Validate(eventHandler); 
+                doc.Load(XmlFilePath);
+                ValidationEventHandler eventHandler = new ValidationEventHandler(MyValidateMethod);
+                doc.Schemas.Add(null, XsdFilePath);
+                doc.Validate(eventHandler);
             }
             catch (XmlException ex)
             {
@@ -102,7 +84,6 @@ namespace DataSourcesConverter
             return isValid;
         }
 
-        //método responsável para as validações que serão necessárias
         private void MyValidateMethod(object sender, ValidationEventArgs args)
         {
             isValid = false;
@@ -118,17 +99,15 @@ namespace DataSourcesConverter
                     break;
             }
         }
-        #endregion
-
         public void CheckXsdExists()
         {
-            if (File.Exists("flow_config.xsd"))
+            if (File.Exists(XsdFilePath))
             {
                 string hashToString = "";
 
                 using (MD5CryptoServiceProvider algorithm = new MD5CryptoServiceProvider())
                 {
-                    using (var stream = File.OpenRead("flow_config.xsd"))
+                    using (var stream = File.OpenRead(XsdFilePath))
                     {
                         byte[] hash = algorithm.ComputeHash(stream);
                         hashToString = BitConverter.ToString(hash);
@@ -137,7 +116,7 @@ namespace DataSourcesConverter
 
                 if (string.Compare(hashToString, "0F-52-D7-B0-E8-10-76-AB-22-41-C2-F6-1D-03-B0-9A") != 0)
                 {
-                    File.Delete("flow_config.xsd");
+                    File.Delete(XsdFilePath);
                     GenerateXsd();
                 }
             }
@@ -155,6 +134,7 @@ namespace DataSourcesConverter
                 writer.WriteLine(xsd);
             }
         }
+        #endregion
 
         //XML file to HTML table, source: https://social.msdn.microsoft.com/Forums/officeocs/en-US/36758899-1dd9-4b1d-9c37-285e584c151e/xml-to-html-tables?forum=csharpgeneral
         public string ConvertXmlToHtmlTable(string xml)
