@@ -13,13 +13,12 @@ using Sheets = DocumentFormat.OpenXml.Spreadsheet.Sheets;
 public class ExcelHandler
 {
     //source: https://forums.asp.net/t/1927615.aspx?how+to+convert+xls+file+to+xml+without+using+any+Provider+or+dll+or+third+party+tool
-    private DataTable ReadExcelFile(string filename)
+    private List<DataTable> ReadExcelFile(string filename)
     {
-        // Initialize an instance of DataTable
-        DataTable dt = new DataTable();
-
         try
         {
+            List<DataTable> dtList = new List<DataTable>();
+
             // Use SpreadSheetDocument class of Open XML SDK to open excel file
             using (SpreadsheetDocument spreadsheetDocument = SpreadsheetDocument.Open(filename, false))
             {
@@ -29,61 +28,70 @@ public class ExcelHandler
                 // Get all sheets in spread sheet document
                 IEnumerable<Sheet> sheetcollection = spreadsheetDocument.WorkbookPart.Workbook.GetFirstChild<Sheets>().Elements<Sheet>();
 
-                // Get relationship Id
-                string relationshipId = sheetcollection.First().Id.Value;
-
-                // Get sheet1 Part of Spread Sheet Document
-                WorksheetPart worksheetPart = (WorksheetPart)spreadsheetDocument.WorkbookPart.GetPartById(relationshipId);
-
-                // Get Data in Excel file
-                SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
-                IEnumerable<Row> rowcollection = sheetData.Descendants<Row>();
-
-                if (rowcollection.Count() == 0)
+                foreach(Sheet sheet in sheetcollection)
                 {
-                    return dt;
-                }
+                    DataTable dt = new DataTable();
+                    dt.TableName = sheet.Name;
 
-                // Add columns
-                foreach (Cell cell in rowcollection.ElementAt(0))
-                {
-                    dt.Columns.Add(GetValueOfCell(spreadsheetDocument, cell));
-                }
+                    // Get relationship Id
+                    //string relationshipId = sheetcollection.First().Id.Value;
+                    string relationshipId = sheet.Id.Value;
 
-                // Add rows into DataTable
-                foreach (Row row in rowcollection)
-                {
-                    DataRow temprow = dt.NewRow();
-                    int columnIndex = 0;
-                    foreach (Cell cell in row.Descendants<Cell>())
+                    // Get sheet1 Part of Spread Sheet Document
+                    WorksheetPart worksheetPart = (WorksheetPart)spreadsheetDocument.WorkbookPart.GetPartById(relationshipId);
+
+                    // Get Data in Excel file
+                    SheetData sheetData = worksheetPart.Worksheet.Elements<SheetData>().First();
+                    IEnumerable<Row> rowcollection = sheetData.Descendants<Row>();
+
+                    if (rowcollection.Count() == 0)
                     {
-                        // Get Cell Column Index
-                        int cellColumnIndex = GetColumnIndex(GetColumnName(cell.CellReference));
-
-                        if (columnIndex < cellColumnIndex)
-                        {
-                            do
-                            {
-                                temprow[columnIndex] = string.Empty;
-                                columnIndex++;
-                            }
-
-                            while (columnIndex < cellColumnIndex);
-                        }
-
-                        temprow[columnIndex] = GetValueOfCell(spreadsheetDocument, cell);
-                        columnIndex++;
+                        continue;
                     }
 
-                    // Add the row to DataTable
-                    // the rows include header row
-                    dt.Rows.Add(temprow);
-                }
+                    // Add columns
+                    foreach (Cell cell in rowcollection.ElementAt(0))
+                    {
+                        dt.Columns.Add(GetValueOfCell(spreadsheetDocument, cell));
+                    }
+
+                    // Add rows into DataTable
+                    foreach (Row row in rowcollection)
+                    {
+                        DataRow temprow = dt.NewRow();
+                        int columnIndex = 0;
+                        foreach (Cell cell in row.Descendants<Cell>())
+                        {
+                            // Get Cell Column Index
+                            int cellColumnIndex = GetColumnIndex(GetColumnName(cell.CellReference));
+
+                            if (columnIndex < cellColumnIndex)
+                            {
+                                do
+                                {
+                                    temprow[columnIndex] = string.Empty;
+                                    columnIndex++;
+                                }
+
+                                while (columnIndex < cellColumnIndex);
+                            }
+
+                            temprow[columnIndex] = GetValueOfCell(spreadsheetDocument, cell);
+                            columnIndex++;
+                        }
+
+                        // Add the row to DataTable
+                        // the rows include header row
+                        dt.Rows.Add(temprow);
+                    }
+
+                    // Here remove header row
+                    dt.Rows.RemoveAt(0);
+                    dtList.Add(dt);
+                }                
             }
 
-            // Here remove header row
-            dt.Rows.RemoveAt(0);
-            return dt;
+            return dtList;
         }
         catch (IOException ex)
         {
@@ -145,7 +153,12 @@ public class ExcelHandler
     {
         using (DataSet ds = new DataSet())
         {
-            ds.Tables.Add(this.ReadExcelFile(filename));
+            ds.DataSetName = "data";    
+            List<DataTable> dtList = this.ReadExcelFile(filename);
+            foreach(DataTable dt in dtList)
+            {
+                ds.Tables.Add(dt);
+            }
             return ds.GetXml();
         }
     }

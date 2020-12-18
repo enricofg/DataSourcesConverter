@@ -263,7 +263,15 @@ namespace DataSourcesConverter
                     else
                     {
                         string jsonOutput = XMLHandler.XMLToJson();
-                        PostJsonOutput(outputPath, jsonOutput);
+                        try
+                        {
+                            PostJsonOutput(outputPath, jsonOutput);
+                        }
+                        catch (Exception ex)
+                        {
+                            MessageBox.Show("Error trying to connect to \"" + outputPath + "\".");
+                            return;
+                        }
                     }
                 }
                 catch (Exception)
@@ -288,7 +296,14 @@ namespace DataSourcesConverter
                     else
                     {
                         string jsonOutput = XMLHandler.XMLToJson();
-                        PostJsonOutput(outputPath, jsonOutput);
+                        try
+                        {
+                            PostJsonOutput(outputPath, jsonOutput);
+                        } catch (Exception ex)
+                        {
+                            MessageBox.Show("Error trying to connect to \"" + outputPath + "\".");
+                            return;
+                        }
                     }
                 }
                 catch (Exception)
@@ -331,6 +346,7 @@ namespace DataSourcesConverter
                         catch (JsonSerializationException e)
                         {
                             MessageBox.Show("ERROR: It was not possible to write response as HTML. \nReason: " + e.Message);
+                            return;
                         }
                         finally
                         {
@@ -355,18 +371,21 @@ namespace DataSourcesConverter
             {
                 StreamWriter sw;
                 string ext = Path.GetExtension(outputPath);
+                string msg;
                 if (string.Compare(ext, ".html") != 0)
                 {
                     sw = new StreamWriter(outputPath + ".html");
+                    msg = "HTML File " + outputPath + ".html created!";
                 }
                 else
                 {
                     sw = new StreamWriter(outputPath);
+                    msg = "HTML File " + outputPath + " created!";
                 }
 
                 sw.WriteLine(readInfo);
                 sw.Close();
-                MessageBox.Show("HTML File " + outputPath + ".html created!");
+                MessageBox.Show(msg);
             }
             catch (Exception e)
             {
@@ -376,7 +395,7 @@ namespace DataSourcesConverter
 
         private static void PostJsonOutput(string outputPath, string jsonContent)
         {
-            var client = new RestSharp.RestClient(outputPath);
+            var client = new RestSharp.RestClient();
 
             var request = new RestSharp.RestRequest(outputPath, RestSharp.Method.POST);
             request.RequestFormat = RestSharp.DataFormat.Json;
